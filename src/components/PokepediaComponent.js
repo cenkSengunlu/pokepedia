@@ -83,18 +83,25 @@ const PokepediaComponent = () => {
 
           {/* Content */}
           <div className="flex flex-col items-center">
-            <div>
-              <img src={`${pokeItem.sprites.front_default}`} alt="" />
-            </div>
-            <div>{`${makeUpper(pokeItem.pokemon.name)}`}</div>
-          </div>
-          <div className="flex w-32 justify-around">
-            {pokeItem.types.map((x, i) => {
-              return(
-                <div key={`${i}`}>{`${makeUpper(x.type.name)}`}</div>
+            {
+              pokeItem && (
+                <>
+                  <div>
+                    <img src={`${pokeItem.sprites.front_default}`} alt="" />
+                  </div>
+                  <div>{`${makeUpper(pokeItem.pokemon.name)}`}</div>
+                  <div className="flex w-32 justify-around">
+                    {pokeItem.types.map((x, i) => {
+                      return(
+                        <div key={`${i}`}>{`${makeUpper(x.type.name)}`}</div>
+                      )
+                    })}
+                  </div>
+                </>
               )
-            })}
+            }
           </div>
+          
 
 
         </div>
