@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/pokepedia/static/css/main.3a0deba7.css",
-    "main.js": "/pokepedia/static/js/main.6fc69a8d.js",
+    "main.css": "/pokepedia/static/css/main.83a1e82b.css",
+    "main.js": "/pokepedia/static/js/main.18b2661f.js",
     "index.html": "/pokepedia/index.html",
-    "main.3a0deba7.css.map": "/pokepedia/static/css/main.3a0deba7.css.map",
-    "main.6fc69a8d.js.map": "/pokepedia/static/js/main.6fc69a8d.js.map"
+    "main.83a1e82b.css.map": "/pokepedia/static/css/main.83a1e82b.css.map",
+    "main.18b2661f.js.map": "/pokepedia/static/js/main.18b2661f.js.map"
   },
   "entrypoints": [
-    "static/css/main.3a0deba7.css",
-    "static/js/main.6fc69a8d.js"
+    "static/css/main.83a1e82b.css",
+    "static/js/main.18b2661f.js"
   ]
 }
