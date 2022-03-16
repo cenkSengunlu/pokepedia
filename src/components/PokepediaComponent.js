@@ -7,7 +7,8 @@ const PokepediaComponent = () => {
   const [inputVal, setInputVal] = useState("");
   const [pokeName, setPokeName] = useState("");
   const [pokeItem, setPokeItem] = useState(null);
-
+  const [pokeForm, setPokeForm] = useState([]);
+  const [pokeEvo, setPokeEvo] = useState(null);
   const [title, setTitle] = useState("Poképedia");
 
 
@@ -21,16 +22,18 @@ const PokepediaComponent = () => {
     }
   }
 
+  // Get Pokemon Default Info
   useEffect(() => { 
     if(!pokeName){
       return;
     }
 
     async function getPokeData() {
-      const response = await fetch(`https://pokeapi.co/api/v2/pokemon-form/${pokeName}/`);
+      const response = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${pokeName}/`);
       const data = await response.json();
       if(!data){
         alert("Error");
+        return;
       }
       setPokeItem(data);
       console.log(data);
@@ -38,6 +41,46 @@ const PokepediaComponent = () => {
     }
     getPokeData();
   }, [pokeName]);
+
+  useEffect(() => {
+    if(!pokeItem){
+      return;
+    }
+    async function getPokemonEvolutions() {
+      const response = await fetch(pokeItem.evolution_chain.url);
+      const data = await response.json();
+      console.log(data);
+      setPokeEvo(data);
+    }
+
+    getPokemonEvolutions();
+
+    
+
+  }, [pokeItem]);
+
+
+  // useEffect(() => {
+  //   if(!pokeItem){
+  //     return;
+  //   }
+
+  //   async function getPokemonMode(){
+  //     let arr = [];
+  //     for(let i = 0; i < pokeItem.varieties.length; i++){
+  //       const response = await fetch(pokeItem.varieties[i].pokemon.url);
+  //       const data = await response.json();
+  //       console.log(data);
+  //       arr.push(data);
+  //     }
+  //     setPokeForm(arr);
+  //     console.log(pokeForm);
+  //   }
+  //   getPokemonMode();
+  // }, [pokeItem]);
+
+
+
 
   useEffect(() => {
     document.title = title;
@@ -72,7 +115,7 @@ const PokepediaComponent = () => {
         <div className="flex flex-col justify-start items-center w-full h-screen">
 
           {/* Input */}
-          <div className="flex justify-start items-center w-96 p-5 bg-gray-700 block">
+          <div className="flex justify-start items-center w-96 p-5 bg-gray-700 mb-5">
             <input type="text" value={inputVal} placeholder="Search" className="inputClass mr-5 p-2.5 rounded-full focus:outline-none" onChange={getValue}
             onKeyPress={(ev) => { if (ev.key === "Enter")  {handleClick(ev.key);}}}
             ></input>
@@ -86,21 +129,38 @@ const PokepediaComponent = () => {
             {
               pokeItem && (
                 <>
-                  <div>
-                    <img src={`${pokeItem.sprites.front_default}`} alt="" />
-                  </div>
-                  <div>{`${makeUpper(pokeItem.pokemon.name)}`}</div>
-                  <div className="flex w-32 justify-around">
-                    {pokeItem.types.map((x, i) => {
+                  
+                  
+                  {/* <div className="flex w-96 justify-between mb-24">
+                    {pokeForm.map((x, i) => {
                       return(
-                        <div key={`${i}`}>{`${makeUpper(x.type.name)}`}</div>
+                        <div className="flex flex-col items-center w-28 text-center" key={i}>
+                          <div>
+                            <img src={`${x.sprites.front_default}`} alt="" className="w-24 h-24"/>
+                          </div>
+                          <div key={`${i}`}>{`${makeUpper(x.name)}`}</div>
+                        </div>
                       )
                     })}
                   </div>
+
+                  <div className="flex w-96 justify-between mb-24">
+                    {pokeForm.map((x, i) => {
+                      return(
+                        <div className="flex flex-col items-center w-28 text-center" key={i}>
+                          <div>
+                            <img src={`${x.sprites.front_default}`} alt="" className="w-24 h-24"/>
+                          </div>
+                          <div key={`${i}`}>{`${makeUpper(x.name)}`}</div>
+                        </div>
+                      )
+                    })}
+                  </div> */}
                 </>
               )
             }
           </div>
+
           
 
 
