@@ -1,15 +1,22 @@
 import React, {useState, useEffect} from 'react';
-
+import typeDefenseObject from '../typeDefenseObject';
 
 const PokepediaComponent = () => {
 
 
   const [inputVal, setInputVal] = useState("");
   const [pokeName, setPokeName] = useState("");
-  const [pokeItem, setPokeItem] = useState(null);
+  const [pokeInfo, setPokeInfo] = useState(null);
   const [pokeForm, setPokeForm] = useState([]);
-  const [pokeEvo, setPokeEvo] = useState(null);
+  const [pokeFormData, setPokeFormData] = useState(null);
+  // const [pokeEvo, setPokeEvo] = useState(null);
   const [title, setTitle] = useState("Poképedia");
+  const [pokeId, setPokeId] = useState();
+  const [selects, setSelects] = useState();
+
+  const [types, setTypes] = useState();
+
+  const [selectedOption, setSelectedOption] = useState(0);
 
 
 
@@ -29,55 +36,141 @@ const PokepediaComponent = () => {
     }
 
     async function getPokeData() {
-      const response = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${pokeName}/`);
+      const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokeName}/`);
       const data = await response.json();
-      if(!data){
-        alert("Error");
-        return;
-      }
-      setPokeItem(data);
+
+      const response2 = await fetch(`${data.species.url}`);
+      const data2 = await response2.json();
+
+      setPokeInfo(data);
+      setPokeFormData(data2);
+      setPokeId(data.id);
       console.log(data);
+      console.log(data2);
       setTitle(`${makeUpper(data.name)} | Poképedia`);
     }
     getPokeData();
   }, [pokeName]);
 
-  useEffect(() => {
-    if(!pokeItem){
-      return;
-    }
-    async function getPokemonEvolutions() {
-      const response = await fetch(pokeItem.evolution_chain.url);
-      const data = await response.json();
-      console.log(data);
-      setPokeEvo(data);
-    }
-
-    getPokemonEvolutions();
-
-    
-
-  }, [pokeItem]);
 
 
   // useEffect(() => {
   //   if(!pokeItem){
   //     return;
   //   }
-
-  //   async function getPokemonMode(){
-  //     let arr = [];
-  //     for(let i = 0; i < pokeItem.varieties.length; i++){
-  //       const response = await fetch(pokeItem.varieties[i].pokemon.url);
-  //       const data = await response.json();
-  //       console.log(data);
-  //       arr.push(data);
-  //     }
-  //     setPokeForm(arr);
-  //     console.log(pokeForm);
+  //   async function getPokemonEvolutions() {
+  //     const response = await fetch(pokeItem.evolution_chain.url);
+  //     const data = await response.json();
+  //     console.log(data);
+  //     setPokeEvo(data);
   //   }
-  //   getPokemonMode();
+
+  //   getPokemonEvolutions();
+
+    
+
   // }, [pokeItem]);
+
+
+  useEffect(() => {
+    if(!pokeFormData){
+      return;
+    }
+    console.log(pokeFormData);
+    async function getPokemonMode(){
+      let formArr = [];
+      let typeArr = [];
+      let formTypes = {};
+
+      for(let i = 0; i < pokeFormData.varieties.length; i++){
+        const response = await fetch(pokeFormData.varieties[i].pokemon.url);
+        const data = await response.json();
+        formArr.push(data);
+      }
+      setPokeForm(formArr);
+      console.log(formArr);
+      
+      for(let j = 0; j < formArr.length; j++){
+        typeArr = [];
+        for(let p = 0; p < formArr[j].types.length; p++){
+          const response2 = await fetch(formArr[j].types[p].type.url);
+          const data2 = await response2.json();
+          typeArr.push(data2);
+        }
+        formTypes['type' + j] = typeArr;
+        console.log(formTypes['type' + j]);
+      }
+      setTypes(formTypes);
+    }
+    getPokemonMode();
+  }, [pokeFormData]);
+
+
+
+
+
+
+
+
+
+
+  useEffect(() => {
+    if(!types){
+      return;
+    }
+
+    console.log(types);
+    
+    let typeObj = typeDefenseObject;
+    const damageControl = Object.keys(types['type' + selectedOption][0].damage_relations).filter((o) => o.includes('from')); 
+    // console.log(damageControl);
+    // console.log(types['type' + selectedOption])
+
+    // for(let j = 0; j< types['type' + selectedOption][i].damage_relations[damageControl]; j++)
+
+    for(let i = 0; i < types['type' + selectedOption].length; i++){
+      for(let j = 0; j < damageControl.length; j++){
+        console.log(types['type' +]);
+      }
+      console.log(types['type' + selectedOption][i].damage_relations);
+    //   // for(let j = 0; j < damageControl.length; j++){
+    //   //   for(let p = 0; p < types['type' + i].damage_relations[damageControl[j]].length; p++){
+          
+    //   //     console.log(types['type' + i].damage_relations[damageControl[j]][p].name);
+    //   //   }
+    //   // }
+      
+    }
+    // console.log(types);
+    // console.log(damageControl);
+  }, [types]);
+
+
+
+
+
+
+
+  const handlePre = (pokeID) => {
+    setPokeName(pokeID);
+  }
+
+  const handleNext = (pokeID) => {
+    setPokeName(pokeID);
+  }
+
+
+  
+  useEffect(() =>{
+    if(!selects){
+      return;
+    }
+
+    setSelectedOption(selects);
+    setPokeInfo(pokeForm[selects]);
+  }, [selects]);
+
+
 
 
 
@@ -127,35 +220,60 @@ const PokepediaComponent = () => {
           {/* Content */}
           <div className="flex flex-col items-center">
             {
-              pokeItem && (
+              pokeInfo && (
                 <>
-                  
-                  
-                  {/* <div className="flex w-96 justify-between mb-24">
-                    {pokeForm.map((x, i) => {
-                      return(
-                        <div className="flex flex-col items-center w-28 text-center" key={i}>
-                          <div>
-                            <img src={`${x.sprites.front_default}`} alt="" className="w-24 h-24"/>
-                          </div>
-                          <div key={`${i}`}>{`${makeUpper(x.name)}`}</div>
-                        </div>
-                      )
-                    })}
+                  {/* Previous - Next Buttons */}
+                  <div className="w-96 flex justify-between">
+                    <button className={`text-white bg-indigo-700 p-5 rounded-full ${pokeId - 1 ? "visible" : "invisible"}`} onClick={() => handlePre(pokeId - 1)}>{`#${pokeId - 1}`}</button>
+                    <button className={`text-white bg-indigo-700 p-5 rounded-full`} onClick={() => handleNext(pokeId + 1)}>{`#${pokeId + 1}`}</button> 
                   </div>
+                
+                  
+                    
+                  <div className="flex flex-col items-center w-96 mb-24">
+                    <div>
+                      <img src={`${pokeInfo.sprites.front_default}`} alt="" className="w-48 h-48"/>
+                    </div>
+                    <div>{`#${pokeId}`}</div>
+                    <div>{`${makeUpper(pokeInfo.name)}`}</div>
+                    <div className="w-2/4 flex justify-around">
+                      {pokeInfo.types.map((x, i) => {
+                        return(
+                          <div key={i}>{x.type.name}</div>
+                        )
+                      })}
+                    </div>
 
-                  <div className="flex w-96 justify-between mb-24">
-                    {pokeForm.map((x, i) => {
-                      return(
-                        <div className="flex flex-col items-center w-28 text-center" key={i}>
-                          <div>
-                            <img src={`${x.sprites.front_default}`} alt="" className="w-24 h-24"/>
+
+                    <div className="">
+                      {pokeInfo.stats.map((x, i) => {
+                        return(
+                          <div key={i}>
+                            
+                            <div>{`${x.stat.name}: ${x.base_stat}`}</div>
+                            <div className="w-64 bg-gray-200 rounded-full h-2.5 dark:bg-indigo-300">
+                              <div className="bg-indigo-600 h-2.5 rounded-full" style={{width: `calc(${x.base_stat / 2}% )`}}></div>
+                            </div>
                           </div>
-                          <div key={`${i}`}>{`${makeUpper(x.name)}`}</div>
-                        </div>
+                          
+                        )
+                      })}
+                    </div>
+
+                  <select value={selects} onChange={e => setSelects(e.target.value)} className="w-48 mt-10" id="dropList">
+                  {
+                    pokeForm.map((x, i) => {
+                      return(
+                        <option key={i} value={i}>{x.name}</option>
                       )
-                    })}
-                  </div> */}
+                    })
+                  }
+                  </select>
+
+
+
+
+                  </div>
                 </>
               )
             }
