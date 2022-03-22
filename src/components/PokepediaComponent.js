@@ -45,8 +45,8 @@ const PokepediaComponent = () => {
       setPokeInfo(data);
       setPokeFormData(data2);
       setPokeId(data.id);
-      console.log(data);
-      console.log(data2);
+      // console.log(data);
+      // console.log(data2);
       setTitle(`${makeUpper(data.name)} | Poképedia`);
     }
     getPokeData();
@@ -76,7 +76,7 @@ const PokepediaComponent = () => {
     if(!pokeFormData){
       return;
     }
-    console.log(pokeFormData);
+    // console.log(pokeFormData);
     async function getPokemonMode(){
       let formArr = [];
       let typeArr = [];
@@ -88,7 +88,7 @@ const PokepediaComponent = () => {
         formArr.push(data);
       }
       setPokeForm(formArr);
-      console.log(formArr);
+      // console.log(formArr);
       
       for(let j = 0; j < formArr.length; j++){
         typeArr = [];
@@ -98,7 +98,7 @@ const PokepediaComponent = () => {
           typeArr.push(data2);
         }
         formTypes['type' + j] = typeArr;
-        console.log(formTypes['type' + j]);
+        // console.log(formTypes['type' + j]);
       }
       setTypes(formTypes);
     }
@@ -118,32 +118,41 @@ const PokepediaComponent = () => {
     if(!types){
       return;
     }
-
-    console.log(types);
-    
-    let typeObj = typeDefenseObject;
-    const damageControl = Object.keys(types['type' + selectedOption][0].damage_relations).filter((o) => o.includes('from')); 
+    let damageCalc = []
+    const formType = types['type' + selectedOption];
+    // console.log(formType);
+    let typeObj = {...typeDefenseObject};
+    const damageControl = Object.keys(formType[0].damage_relations).filter((o) => o.includes('from')); 
     // console.log(damageControl);
     // console.log(types['type' + selectedOption])
+    let damageType;
 
-    // for(let j = 0; j< types['type' + selectedOption][i].damage_relations[damageControl]; j++)
-
-    for(let i = 0; i < types['type' + selectedOption].length; i++){
+    for(let i = 0; i < formType.length; i++){
       for(let j = 0; j < damageControl.length; j++){
-        console.log(types['type' +]);
+        for(let p = 0; p < formType[i].damage_relations[damageControl[j]].length; p++){
+          damageType = formType[i].damage_relations[damageControl[j]][p].name;
+          switch(damageControl[j]){
+            case 'double_damage_from': {
+              typeObj[damageType] *= 2;
+              break;
+            }
+            case 'half_damage_from': {
+              typeObj[damageType] /= 2;
+              break;
+            }
+            case 'no_damage_from': {
+              typeObj[damageType] *= 0;
+              break;
+            }
+          }
+        }
       }
-      console.log(types['type' + selectedOption][i].damage_relations);
-    //   // for(let j = 0; j < damageControl.length; j++){
-    //   //   for(let p = 0; p < types['type' + i].damage_relations[damageControl[j]].length; p++){
-          
-    //   //     console.log(types['type' + i].damage_relations[damageControl[j]][p].name);
-    //   //   }
-    //   // }
       
     }
+    console.log(typeObj);
     // console.log(types);
     // console.log(damageControl);
-  }, [types]);
+  }, [types, selectedOption]);
 
 
 
@@ -200,7 +209,7 @@ const PokepediaComponent = () => {
     }
 
     setPokeName(inputVal);
-    console.log(inputVal);
+    // console.log(inputVal);
     setInputVal('');
   }
 
