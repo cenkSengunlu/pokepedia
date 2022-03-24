@@ -1,5 +1,8 @@
 import React, {useState, useEffect} from 'react';
 import typeDefenseObject from '../typeDefenseObject';
+import typeColorObject from '../typeColorObject';
+import damageColorObject from '../damageColorObject';
+// import StatBar from './StatBar';
 
 const PokepediaComponent = () => {
 
@@ -172,16 +175,35 @@ const PokepediaComponent = () => {
 
 
     for (const [key, value] of Object.entries(typeObj)) {
+
       arr.push(
-        <div className="flex flex-col w-10">
-          <div className="flex justify-center w-10">{key.toUpperCase().substring(0,3)}</div>
-          <div className="flex justify-center w-10">{value}</div>
+        <div className="flex flex-col w-10 ">
+          <div className={`flex justify-center items-center w-10 py-2 border-2 border-solid rounded-lg text-white text-sm font-medium mb-0.5 drop-shadow-md text-shadow ${typeColorObject[key].background} ${typeColorObject[key].border}`}>{key.toUpperCase().substring(0,3)}</div>
+          <div className={`flex justify-center items-center w-10 h-10 py-2 text-yellow-300 rounded-lg text-sm ${damageColorObject[value]}`}>{damageValueReplace(value)}</div>
         </div>
         );
     }
 
     setTypeMatchup(arr);
   }, [types, selects]);
+
+
+  const damageValueReplace = (val) => {
+    switch (val) {
+      case 1: {
+        return '';
+      }
+      case 0.5: {
+        return '½';
+      }
+      case 0.25: {
+        return '¼';
+      }
+      default: {
+        return val;
+      }
+    }
+  }
 
 
 
@@ -252,7 +274,7 @@ const PokepediaComponent = () => {
             <input type="text" value={inputVal} placeholder="Search" className="inputClass mr-5 p-2.5 rounded-full focus:outline-none" onChange={getValue}
             onKeyPress={(ev) => { if (ev.key === "Enter")  {handleClick(ev.key);}}}
             ></input>
-            <div className="searchBtn cursor-pointer" onClick={() => handleClick()}>
+            <div className="searchBtn cursor-pointer text-white p-2 border-2 border-solid bg-violet-800 border-violet-900 rounded-full border" onClick={() => handleClick()}>
                 Search
             </div>
           </div>
@@ -276,31 +298,29 @@ const PokepediaComponent = () => {
                     </div>
                     <div>{`#${pokeId}`}</div>
                     <div>{`${makeUpper(pokeInfo.name)}`}</div>
-                    <div className="w-2/4 flex justify-around">
+                    <div className="w-2/4 flex justify-around my-3">
                       {pokeInfo.types.map((x, i) => {
                         return(
-                          <div key={i}>{x.type.name}</div>
+                          <div key={i} className={`text-white rounded-2xl py-0.5 px-2 drop-shadow-xl border-2 border-solid text-shadow ${typeColorObject[x.type.name].background} ${typeColorObject[x.type.name].border}`}>{makeUpper(x.type.name)}</div>
                         )
                       })}
                     </div>
 
 
                     <div className="">
-                      {pokeInfo.stats.map((pokemon, index) => {
+                      {pokeInfo.stats.map((pokemonStatInfo, keyIndex) =>{
                         return(
-                          <div key={index}>
-                            
-                            <div>{`${pokemon.stat.name}: ${pokemon.base_stat}`}</div>
-                            <div className="w-64 bg-gray-200 rounded-full h-2.5 dark:bg-indigo-300">
-                              <div className="bg-indigo-600 h-2.5 rounded-full" style={{width: `calc(${pokemon.base_stat / 2}% )`}}></div>
+                          <div key={keyIndex}>                     
+                            <div>{`${pokemonStatInfo.stat.name}: ${pokemonStatInfo.base_stat}`}</div>
+                              <div className="w-64 bg-gray-200 rounded-full h-2.5 dark:bg-indigo-300">
+                              <div className="bg-indigo-600 h-2.5 rounded-full" style={{width: `calc(${pokemonStatInfo.base_stat / 2}% )`}}></div>
                             </div>
                           </div>
-                          
                         )
                       })}
                     </div>
 
-                  <select value={selects} onChange={e => setSelects(e.target.value)} className="w-48 mx-10" id="dropList">
+                  <select value={selects} onChange={e => setSelects(e.target.value)} className="w-48 my-10" id="dropList">
                   {
                     pokeForm.map((x, i) => {
                       return(
@@ -309,16 +329,20 @@ const PokepediaComponent = () => {
                     })
                   }
                   </select>
-
-                  <div className="w-96 bg-gray-400 flex flex-wrap">
-                    {
-                      typeMatchup.map((x, i) =>{
-                        return(
-                          <div key={i}>{x}</div>
-                        )
-                      })
-                    }
+                  <div>
+                    <div className="font-bold text-3xl">Type defenses</div>
+                    <div className="mb-2 mt-4">The effectiveness of each type on <span className="italic">{makeUpper(pokeInfo.name)}</span>.</div>
+                    <div className="w-96 flex flex-wrap justify-evenly items-center h-44">
+                      {
+                        typeMatchup.map((x, i) =>{
+                          return(
+                            <div key={i}>{x}</div>
+                          )
+                        })
+                      }
+                    </div>
                   </div>
+                  
 
 
 
