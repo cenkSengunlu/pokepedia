@@ -3,20 +3,36 @@ import typeDefenseObject from '../typeDefenseObject';
 
 const PokepediaComponent = () => {
 
-
+  // Inputtan gelen değeri tutan state
   const [inputVal, setInputVal] = useState("");
-  const [pokeName, setPokeName] = useState("");
-  const [pokeInfo, setPokeInfo] = useState(null);
-  const [pokeForm, setPokeForm] = useState([]);
-  const [pokeFormData, setPokeFormData] = useState(null);
-  // const [pokeEvo, setPokeEvo] = useState(null);
-  const [title, setTitle] = useState("Poképedia");
-  const [pokeId, setPokeId] = useState();
-  const [selects, setSelects] = useState();
 
+  // Inputtan gelen verinin atandığı state
+  const [pokeName, setPokeName] = useState("");
+
+  // Pokemon bilgilerini tutan obje
+  const [pokeInfo, setPokeInfo] = useState(null);
+
+  // Pokemon'ların form(mod) bilgilerini tutan obje dizisi
+  const [pokeForm, setPokeForm] = useState([]);
+
+  // Seçili Pokemon formunun(mod) bilgilerini tutan obje
+  const [pokeFormData, setPokeFormData] = useState(null);
+
+  // Sayfa başlığı değerini tutan state
+  const [title, setTitle] = useState("Poképedia");
+
+  // Seçili Pokemon'un pokedex numarasını tutan state
+  const [pokeId, setPokeId] = useState();
+
+  // Seçili dropdown list elemanının değerini id değerini tutan state
+  const [selects, setSelects] = useState(0);
+
+  // Seçili Pokemon'un formlarının(mod) type bilgilerini tutan obje dizisi
   const [types, setTypes] = useState();
 
-  const [selectedOption, setSelectedOption] = useState(0);
+  // Pokemon'ların type hasar etkileşim tablosunu tutan obje
+  const [typeMatchup, setTypeMatchup] = useState([]);
+
 
 
 
@@ -45,6 +61,7 @@ const PokepediaComponent = () => {
       setPokeInfo(data);
       setPokeFormData(data2);
       setPokeId(data.id);
+      setSelects(0);
       // console.log(data);
       // console.log(data2);
       setTitle(`${makeUpper(data.name)} | Poképedia`);
@@ -119,7 +136,7 @@ const PokepediaComponent = () => {
       return;
     }
     let damageCalc = []
-    const formType = types['type' + selectedOption];
+    const formType = types['type' + selects];
     // console.log(formType);
     let typeObj = {...typeDefenseObject};
     const damageControl = Object.keys(formType[0].damage_relations).filter((o) => o.includes('from')); 
@@ -137,7 +154,7 @@ const PokepediaComponent = () => {
               break;
             }
             case 'half_damage_from': {
-              typeObj[damageType] /= 2;
+              typeObj[damageType] *= 0.5;
               break;
             }
             case 'no_damage_from': {
@@ -149,10 +166,22 @@ const PokepediaComponent = () => {
       }
       
     }
+    
     console.log(typeObj);
-    // console.log(types);
-    // console.log(damageControl);
-  }, [types, selectedOption]);
+    let arr = [];
+
+
+    for (const [key, value] of Object.entries(typeObj)) {
+      arr.push(
+        <div className="flex flex-col w-10">
+          <div className="flex justify-center w-10">{key.toUpperCase().substring(0,3)}</div>
+          <div className="flex justify-center w-10">{value}</div>
+        </div>
+        );
+    }
+
+    setTypeMatchup(arr);
+  }, [types, selects]);
 
 
 
@@ -174,8 +203,8 @@ const PokepediaComponent = () => {
     if(!selects){
       return;
     }
-
-    setSelectedOption(selects);
+    // console.log(selects);
+    // setSelectedOption(selects);
     setPokeInfo(pokeForm[selects]);
   }, [selects]);
 
@@ -187,6 +216,8 @@ const PokepediaComponent = () => {
   useEffect(() => {
     document.title = title;
   }, [title]);
+
+
 
   const makeUpper = (val) =>{
     val = val.split(" ");
@@ -208,7 +239,7 @@ const PokepediaComponent = () => {
       document.querySelector('.inputClass').blur();
     }
 
-    setPokeName(inputVal);
+    setPokeName(inputVal.toLowerCase());
     // console.log(inputVal);
     setInputVal('');
   }
@@ -255,13 +286,13 @@ const PokepediaComponent = () => {
 
 
                     <div className="">
-                      {pokeInfo.stats.map((x, i) => {
+                      {pokeInfo.stats.map((pokemon, index) => {
                         return(
-                          <div key={i}>
+                          <div key={index}>
                             
-                            <div>{`${x.stat.name}: ${x.base_stat}`}</div>
+                            <div>{`${pokemon.stat.name}: ${pokemon.base_stat}`}</div>
                             <div className="w-64 bg-gray-200 rounded-full h-2.5 dark:bg-indigo-300">
-                              <div className="bg-indigo-600 h-2.5 rounded-full" style={{width: `calc(${x.base_stat / 2}% )`}}></div>
+                              <div className="bg-indigo-600 h-2.5 rounded-full" style={{width: `calc(${pokemon.base_stat / 2}% )`}}></div>
                             </div>
                           </div>
                           
@@ -269,7 +300,7 @@ const PokepediaComponent = () => {
                       })}
                     </div>
 
-                  <select value={selects} onChange={e => setSelects(e.target.value)} className="w-48 mt-10" id="dropList">
+                  <select value={selects} onChange={e => setSelects(e.target.value)} className="w-48 mx-10" id="dropList">
                   {
                     pokeForm.map((x, i) => {
                       return(
@@ -278,6 +309,16 @@ const PokepediaComponent = () => {
                     })
                   }
                   </select>
+
+                  <div className="w-96 bg-gray-400 flex flex-wrap">
+                    {
+                      typeMatchup.map((x, i) =>{
+                        return(
+                          <div key={i}>{x}</div>
+                        )
+                      })
+                    }
+                  </div>
 
 
 
