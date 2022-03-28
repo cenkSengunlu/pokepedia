@@ -1,75 +1,75 @@
 const typeColorObject = {
   'normal': {
-    'background': 'bg-stone-400',
-    'border': 'border-stone-500'
+    'background': 'bg-stone-500',
+    'border': 'border-stone-600'
   },
   'fire': {
-    'background': 'bg-red-600',
-    'border': 'border-red-700'
+    'background': 'bg-red-700',
+    'border': 'border-red-800'
   },
   'water': {
-    'background': 'bg-blue-600',
-    'border': 'border-blue-700'
+    'background': 'bg-blue-700',
+    'border': 'border-blue-800'
   },
   'electric': {
-    'background': 'bg-yellow-400',
-    'border': 'border-yellow-500',
+    'background': 'bg-yellow-500',
+    'border': 'border-yellow-600',
   },
   'grass': {
-    'background': 'bg-green-600',
-    'border': 'border-green-700',
+    'background': 'bg-green-700',
+    'border': 'border-green-800',
   },
   'ice': {
-    'background': 'bg-cyan-400',
-    'border': 'border-cyan-500'
+    'background': 'bg-cyan-500',
+    'border': 'border-cyan-600'
   },
   'fighting': {
     'background': 'bg-amber-800',
     'border': 'border-amber-900'
   },
   'poison': {
-    'background': 'bg-fuchsia-700',
-    'border': 'border-fuchsia-800'
+    'background': 'bg-fuchsia-800',
+    'border': 'border-fuchsia-900'
   },
   'ground': {
-    'background': 'bg-amber-600',
-    'border': 'border-amber-700'
+    'background': 'bg-amber-700',
+    'border': 'border-amber-800'
   },
   'flying': {
-    'background': 'bg-sky-300',
-    'border': 'border-sky-400'
+    'background': 'bg-sky-400',
+    'border': 'border-sky-500'
   },
   'psychic': {
-    'background': 'bg-rose-400',
-    'border': 'border-rose-500'
+    'background': 'bg-rose-500',
+    'border': 'border-rose-600'
   },
   'bug': {
-    'background': 'bg-lime-500',
-    'border': 'border-lime-600'
+    'background': 'bg-lime-600',
+    'border': 'border-lime-700'
   },
   'rock': {
-    'background': 'bg-yellow-700',
-    'border': 'border-yellow-800'
+    'background': 'bg-yellow-800',
+    'border': 'border-yellow-900'
   },
   'ghost': {
     'background': 'bg-purple-600',
     'border': 'border-purple-700'
   },
   'dragon': {
-    'background': 'bg-violet-700',
-    'border': 'border-violet-800'
+    'background': 'bg-violet-800',
+    'border': 'border-violet-900'
   },
   'dark': {
-    'background': 'bg-neutral-600',
-    'border': 'border-neutral-700'
+    'background': 'bg-neutral-700',
+    'border': 'border-neutral-800'
   },
   'steel': {
     'background': 'bg-zinc-400',
     'border': 'border-zinc-500'
   },
   'fairy': {
-    'background': 'bg-pink-400',
-    'border': 'border-pink-500',
+    'background': 'bg-pink-500',
+    'border': 'border-pink-600',
   }
 }
 

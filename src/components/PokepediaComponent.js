@@ -18,8 +18,8 @@ const PokepediaComponent = () => {
   // Pokemon'ların form(mod) bilgilerini tutan obje dizisi
   const [pokeForm, setPokeForm] = useState([]);
 
-  // Seçili Pokemon formunun(mod) bilgilerini tutan obje
-  const [pokeFormData, setPokeFormData] = useState(null);
+  // Seçili Pokemon'un tür bilgilerini tutan obje
+  const [pokeSpeciesData, setPokeSpeciesData] = useState(null);
 
   // Sayfa başlığı değerini tutan state
   const [title, setTitle] = useState("Poképedia");
@@ -48,25 +48,36 @@ const PokepediaComponent = () => {
     }
   }
 
-  // Get Pokemon Default Info
+  // Aranan Pokemon eğer varsa genel bilgilerini ve Tür bilgilerini fetch et
   useEffect(() => { 
     if(!pokeName){
       return;
     }
 
     async function getPokeData() {
+      // Genel Bilgisi
       const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokeName}/`);
       const data = await response.json();
 
+      // Tür Bilgisi
       const response2 = await fetch(`${data.species.url}`);
       const data2 = await response2.json();
 
+      // Pokemon'un genel bilgisini set et
       setPokeInfo(data);
-      setPokeFormData(data2);
+
+      // Pokemon'un tür bilgisini set et
+      setPokeSpeciesData(data2);
+
+      // Aranan/Seçilen Pokemon'un Pokedex numarasını set et
       setPokeId(data.id);
+
+      // Mod isimlerini listeleyen dropdown list'in seçili eleman numarasını set et
       setSelects(0);
       // console.log(data);
       // console.log(data2);
+
+      // Site başlığını set et
       setTitle(`${makeUpper(data.name)} | Poképedia`);
     }
     getPokeData();
@@ -74,39 +85,69 @@ const PokepediaComponent = () => {
 
 
 
-  // useEffect(() => {
-  //   if(!pokeItem){
-  //     return;
-  //   }
-  //   async function getPokemonEvolutions() {
-  //     const response = await fetch(pokeItem.evolution_chain.url);
-  //     const data = await response.json();
-  //     console.log(data);
-  //     setPokeEvo(data);
-  //   }
-
-  //   getPokemonEvolutions();
-
-    
-
-  // }, [pokeItem]);
-
-
+  // Aranan/Seçilen Pokemon'un evrim ağacını fetch et
   useEffect(() => {
-    if(!pokeFormData){
+    if(!pokeId){
+      return;
+    }
+    
+    async function getPokemonEvolutions() {
+      // Aranan/Seçilen Pokemon'un evrim ağacı bilgisi
+      const response = await fetch(pokeSpeciesData.evolution_chain.url);
+      const data = await response.json();
+      console.log(data);
+      // setPokeEvo(data);
+
+      // Evrim ağacını her bir evrim için dizi olarak tutacak obje
+      let evolutionObj = {};
+
+      // Evrim ağacında içeriye doğru gitmek için gereken yol
+      let evolutionChain = data.chain.evolves_to;
+
+      // Evrim ağacı objesinin ilk elemanı
+      evolutionObj[`evo${Object.keys(evolutionObj).length + 1}`] = [data.chain.species.url];
+      // console.log(data2.chain.species.url);
+
+      // Feth ettiğimiz objede bir üst evrimi alabilmek için döngü (recursive mantığını anladığımda recursive ile yapacağım)
+      while(evolutionChain.length) {
+        evolutionObj[`evo${Object.keys(evolutionObj).length + 1}`] = [];
+
+        // Bazı pokemonlar birden çok pokemona evrimleşebildiği için gelen arrayi mapleyerek mevcut key'in değeri olan diziye yeni eleman ekliyorum
+        evolutionChain.map((x) => {
+          evolutionObj[`evo${Object.keys(evolutionObj).length}`].push(x.species.url);
+          // console.log(x.species.url);
+        });
+        // Bir üst evrime geç
+        evolutionChain = evolutionChain[0].evolves_to;
+      }
+      console.log(evolutionObj);
+    }
+    getPokemonEvolutions();
+  }, [pokeId]);
+
+
+  // Aranan/Seçilen Pokemon'un Form(Mod) bilgilerini fetch et
+  useEffect(() => {
+    if(!pokeSpeciesData){
       return;
     }
     // console.log(pokeFormData);
     async function getPokemonMode(){
+      // Pokemon'un varolan formlarını(modlarını) tutacak olan dizi
       let formArr = [];
+
+      // formTypes objesinin dinamik olarak oluşan keylerine değer olarak atanacak, type(tür) bilgilerini tutacak dizi
       let typeArr = [];
+      // Pokemon'un varolan formlarının tip(type) bilgilerini tutacak obje
       let formTypes = {};
 
-      for(let i = 0; i < pokeFormData.varieties.length; i++){
-        const response = await fetch(pokeFormData.varieties[i].pokemon.url);
+      // Pokemon'un form(mod) bilgilerini döngü ile feth et
+      for(let i = 0; i < pokeSpeciesData.varieties.length; i++){
+        const response = await fetch(pokeSpeciesData.varieties[i].pokemon.url);
         const data = await response.json();
         formArr.push(data);
       }
+      // Form bilgilerini set et
       setPokeForm(formArr);
       // console.log(formArr);
       
@@ -120,10 +161,11 @@ const PokepediaComponent = () => {
         formTypes['type' + j] = typeArr;
         // console.log(formTypes['type' + j]);
       }
+      // Form tiplerini tutan objeyi set et
       setTypes(formTypes);
     }
     getPokemonMode();
-  }, [pokeFormData]);
+  }, [pokeSpeciesData]);
 
 
 
@@ -170,7 +212,7 @@ const PokepediaComponent = () => {
       
     }
     
-    console.log(typeObj);
+    // console.log(typeObj);
     let arr = [];
 
 
