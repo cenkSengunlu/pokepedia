@@ -2,6 +2,7 @@ import React, {useState, useEffect} from 'react';
 import typeDefenseObject from '../typeDefenseObject';
 import typeColorObject from '../typeColorObject';
 import damageColorObject from '../damageColorObject';
+import { data } from 'autoprefixer';
 // import StatBar from './StatBar';
 
 const PokepediaComponent = () => {
@@ -35,6 +36,10 @@ const PokepediaComponent = () => {
 
   // Pokemon'ların type hasar etkileşim tablosunu tutan obje
   const [typeMatchup, setTypeMatchup] = useState([]);
+
+  // Arananş/Seçilen Pokemon'un evrim ağacını tutan obje
+  const [pokeEvoLine, setPokeEvoLine] = useState(null);
+
 
 
 
@@ -90,13 +95,16 @@ const PokepediaComponent = () => {
     if(!pokeId){
       return;
     }
+    // const fetchEvo = async (url) => {
+    //   const response2 = await fetch(url);
+    //   const data2 = await response2.json();
+    //   return data2
+    // }
     
     async function getPokemonEvolutions() {
       // Aranan/Seçilen Pokemon'un evrim ağacı bilgisi
       const response = await fetch(pokeSpeciesData.evolution_chain.url);
       const data = await response.json();
-      console.log(data);
-      // setPokeEvo(data);
 
       // Evrim ağacını her bir evrim için dizi olarak tutacak obje
       let evolutionObj = {};
@@ -106,7 +114,6 @@ const PokepediaComponent = () => {
 
       // Evrim ağacı objesinin ilk elemanı
       evolutionObj[`evo${Object.keys(evolutionObj).length + 1}`] = [data.chain.species.url];
-      // console.log(data2.chain.species.url);
 
       // Feth ettiğimiz objede bir üst evrimi alabilmek için döngü (recursive mantığını anladığımda recursive ile yapacağım)
       while(evolutionChain.length) {
@@ -115,15 +122,27 @@ const PokepediaComponent = () => {
         // Bazı pokemonlar birden çok pokemona evrimleşebildiği için gelen arrayi mapleyerek mevcut key'in değeri olan diziye yeni eleman ekliyorum
         evolutionChain.map((x) => {
           evolutionObj[`evo${Object.keys(evolutionObj).length}`].push(x.species.url);
-          // console.log(x.species.url);
         });
         // Bir üst evrime geç
         evolutionChain = evolutionChain[0].evolves_to;
       }
+      
+      for (const [key, value] of Object.entries(evolutionObj)) {
+        value.map(async (evoUrl, i) => {
+          const response2 = await fetch(evoUrl);
+          const data2 = await response2.json();
+          evolutionObj[key][i] = data2;
+        })
+        
+      }
       console.log(evolutionObj);
+
+      setPokeEvoLine(evolutionObj);
     }
     getPokemonEvolutions();
   }, [pokeId]);
+
+
 
 
   // Aranan/Seçilen Pokemon'un Form(Mod) bilgilerini fetch et
