@@ -1,0 +1,31 @@
+const whiteList = {
+  'urshifu': '892',
+  'morpeko': '877',
+  'eiscue': '875',
+  'indeedee': '876',
+  'toxtricity': '849',
+  'mimikyu': '778',
+  'minior': '774',
+  'wishiwashi': '746',
+  'lycanroc': '745',
+  'oricorio': '741',
+  'zygarde': '718',
+  'gourgeist': '711',
+  'pumpkaboo': '710',
+  'aegislash': '681',
+  'meowstic': '678',
+  'meloetta': '648',
+  'keldeo': '647',
+  'landorus': '645',
+  'thundurus': '642',
+  'tornadus': '641',
+  'darmanitan': '555',
+  'basculin': '550',
+  'shaymin': '492',
+  'giratina': '487',
+  'wormadam': '413',
+  'deoxys': '386',
+  'nidoran': '32'
+};
+
+export default whiteList;

@@ -9,3 +9,7 @@
 .text-shadow{
   text-shadow: 1px 1px 2px #000000;
 }
+
+.preBtn, .nextBtn{
+  background-color: #282936;
+}

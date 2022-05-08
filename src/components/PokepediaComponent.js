@@ -1,17 +1,24 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import typeDefenseObject from '../typeDefenseObject';
 import typeColorObject from '../typeColorObject';
 import damageColorObject from '../damageColorObject';
-import { data } from 'autoprefixer';
-// import StatBar from './StatBar';
+import InputContext from '../context/InputContext';
+import Input from './Input';
+import TypeDefense from './TypeDefense';
+import PokeCard from './PokeCard';
+import StatBar from './StatBar';
+import PreviousAndNext from './PreviousAndNext';
+import makeUpper from '../makeUpper';
+import whiteList from '../whiteList';
+
 
 const PokepediaComponent = () => {
 
   // Inputtan gelen değeri tutan state
-  const [inputVal, setInputVal] = useState("");
+  // const [inputVal, setInputVal] = useState("");
 
   // Inputtan gelen verinin atandığı state
-  const [pokeName, setPokeName] = useState("");
+  const {pokeName, setPokeName} = useContext(InputContext);
 
   // Pokemon bilgilerini tutan obje
   const [pokeInfo, setPokeInfo] = useState(null);
@@ -37,40 +44,26 @@ const PokepediaComponent = () => {
   // Pokemon'ların type hasar etkileşim tablosunu tutan obje
   const [typeMatchup, setTypeMatchup] = useState([]);
 
-  // Arananş/Seçilen Pokemon'un evrim ağacını tutan obje
-  const [pokeEvoLine, setPokeEvoLine] = useState(null);
 
 
-
-
-
-
-  const getValue = (val) => { 
-    const { value } = val.target;
-    const re = /[a-zA-ZüğşçöıÜĞŞİÇÖI 0-9]/;
-    if(value === "" || re.test(value)){
-      setInputVal(val.target.value);
-    }
-  }
 
   // Aranan Pokemon eğer varsa genel bilgilerini ve Tür bilgilerini fetch et
   useEffect(() => { 
     if(!pokeName){
       return;
     }
-
+    // setLoading(false);
     async function getPokeData() {
       // Genel Bilgisi
-      const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokeName}/`);
+      const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${whiteList[pokeName] ? whiteList[pokeName] : pokeName}/`);
       const data = await response.json();
 
       // Tür Bilgisi
-      const response2 = await fetch(`${data.species.url}`);
+      const response2 = await fetch(data.species.url);
       const data2 = await response2.json();
 
       // Pokemon'un genel bilgisini set et
       setPokeInfo(data);
-
       // Pokemon'un tür bilgisini set et
       setPokeSpeciesData(data2);
 
@@ -79,70 +72,58 @@ const PokepediaComponent = () => {
 
       // Mod isimlerini listeleyen dropdown list'in seçili eleman numarasını set et
       setSelects(0);
-      // console.log(data);
-      // console.log(data2);
+      console.log(data);
+      console.log(data2);
 
       // Site başlığını set et
       setTitle(`${makeUpper(data.name)} | Poképedia`);
     }
+    // setPromise2(getPokeData);
     getPokeData();
   }, [pokeName]);
 
 
 
   // Aranan/Seçilen Pokemon'un evrim ağacını fetch et
-  useEffect(() => {
-    if(!pokeId){
-      return;
-    }
-    // const fetchEvo = async (url) => {
-    //   const response2 = await fetch(url);
-    //   const data2 = await response2.json();
-    //   return data2
-    // }
+  // useEffect(() => {
+  //   if(!pokeId || !pokeSpeciesData){
+  //     return;
+  //   }
     
-    async function getPokemonEvolutions() {
-      // Aranan/Seçilen Pokemon'un evrim ağacı bilgisi
-      const response = await fetch(pokeSpeciesData.evolution_chain.url);
-      const data = await response.json();
+  //   async function getPokemonEvolutions() {
+  //     // Aranan/Seçilen Pokemon'un evrim ağacı bilgisi
+  //     const response = await fetch(pokeSpeciesData.evolution_chain.url);
+  //     const data = await response.json();
+  //     console.log(data);
+  //     // setPokeEvo(data);
 
-      // Evrim ağacını her bir evrim için dizi olarak tutacak obje
-      let evolutionObj = {};
+  //     // Evrim ağacını her bir evrim için dizi olarak tutacak obje
+  //     let evolutionObj = {};
 
-      // Evrim ağacında içeriye doğru gitmek için gereken yol
-      let evolutionChain = data.chain.evolves_to;
+  //     // Evrim ağacında içeriye doğru gitmek için gereken yol
+  //     let evolutionChain = data.chain.evolves_to;
 
-      // Evrim ağacı objesinin ilk elemanı
-      evolutionObj[`evo${Object.keys(evolutionObj).length + 1}`] = [data.chain.species.url];
+  //     // Evrim ağacı objesinin ilk elemanı
+  //     evolutionObj[`evo${Object.keys(evolutionObj).length + 1}`] = [data.chain.species.url];
+  //     // console.log(data2.chain.species.url);
 
-      // Feth ettiğimiz objede bir üst evrimi alabilmek için döngü (recursive mantığını anladığımda recursive ile yapacağım)
-      while(evolutionChain.length) {
-        evolutionObj[`evo${Object.keys(evolutionObj).length + 1}`] = [];
+  //     // Feth ettiğimiz objede bir üst evrimi alabilmek için döngü (recursive mantığını anladığımda recursive ile yapacağım)
+  //     while(evolutionChain.length) {
+  //       evolutionObj[`evo${Object.keys(evolutionObj).length + 1}`] = [];
 
-        // Bazı pokemonlar birden çok pokemona evrimleşebildiği için gelen arrayi mapleyerek mevcut key'in değeri olan diziye yeni eleman ekliyorum
-        evolutionChain.map((x) => {
-          evolutionObj[`evo${Object.keys(evolutionObj).length}`].push(x.species.url);
-        });
-        // Bir üst evrime geç
-        evolutionChain = evolutionChain[0].evolves_to;
-      }
-      
-      for (const [key, value] of Object.entries(evolutionObj)) {
-        value.map(async (evoUrl, i) => {
-          const response2 = await fetch(evoUrl);
-          const data2 = await response2.json();
-          evolutionObj[key][i] = data2;
-        })
-        
-      }
-      console.log(evolutionObj);
-
-      setPokeEvoLine(evolutionObj);
-    }
-    getPokemonEvolutions();
-  }, [pokeId]);
-
-
+  //       // Bazı pokemonlar birden çok pokemona evrimleşebildiği için gelen arrayi mapleyerek mevcut key'in değeri olan diziye yeni eleman ekliyorum
+  //       evolutionChain.forEach((x) => {
+  //         evolutionObj[`evo${Object.keys(evolutionObj).length}`].push(x.species.url);
+  //         // console.log(x.species.url);
+  //       });
+  //       // Bir üst evrime geç
+  //       evolutionChain = evolutionChain[0].evolves_to;
+  //     }
+  //     console.log(evolutionObj);
+  //   }
+  //   // setPromise3(getPokemonEvolutions);
+  //   getPokemonEvolutions();
+  // }, [pokeId, pokeSpeciesData]);
 
 
   // Aranan/Seçilen Pokemon'un Form(Mod) bilgilerini fetch et
@@ -178,9 +159,10 @@ const PokepediaComponent = () => {
           typeArr.push(data2);
         }
         formTypes['type' + j] = typeArr;
-        // console.log(formTypes['type' + j]);
+        console.log(formTypes['type' + j]);
       }
       // Form tiplerini tutan objeyi set et
+      console.log(formTypes);
       setTypes(formTypes);
     }
     getPokemonMode();
@@ -194,59 +176,69 @@ const PokepediaComponent = () => {
 
 
 
-
+  // Pokemon type hasar hesabı
   useEffect(() => {
     if(!types){
       return;
     }
-    let damageCalc = []
-    const formType = types['type' + selects];
-    // console.log(formType);
-    let typeObj = {...typeDefenseObject};
-    const damageControl = Object.keys(formType[0].damage_relations).filter((o) => o.includes('from')); 
-    // console.log(damageControl);
-    // console.log(types['type' + selectedOption])
-    let damageType;
-
-    for(let i = 0; i < formType.length; i++){
-      for(let j = 0; j < damageControl.length; j++){
-        for(let p = 0; p < formType[i].damage_relations[damageControl[j]].length; p++){
-          damageType = formType[i].damage_relations[damageControl[j]][p].name;
-          switch(damageControl[j]){
-            case 'double_damage_from': {
-              typeObj[damageType] *= 2;
-              break;
-            }
-            case 'half_damage_from': {
-              typeObj[damageType] *= 0.5;
-              break;
-            }
-            case 'no_damage_from': {
-              typeObj[damageType] *= 0;
-              break;
+    const damageCalculate = () => {
+      const formType = types['type' + selects];
+      // console.log(formType);
+      let typeObj = {...typeDefenseObject};
+      const damageControl = Object.keys(formType[0].damage_relations).filter((o) => o.includes('from')); 
+      // console.log(damageControl);
+      // console.log(types['type' + selectedOption])
+      let damageType;
+  
+      for(let i = 0; i < formType.length; i++){
+        for(let j = 0; j < damageControl.length; j++){
+          for(let p = 0; p < formType[i].damage_relations[damageControl[j]].length; p++){
+            damageType = formType[i].damage_relations[damageControl[j]][p].name;
+            switch(damageControl[j]){
+              case 'double_damage_from': {
+                typeObj[damageType] *= 2;
+                break;
+              }
+              case 'half_damage_from': {
+                typeObj[damageType] *= 0.5;
+                break;
+              }
+              case 'no_damage_from': {
+                typeObj[damageType] *= 0;
+                break;
+              }
+              default: {
+                break;
+              }
             }
           }
         }
+        
       }
       
+      // console.log(typeObj);
+      let arr = [];
+  
+  
+      for (const [key, value] of Object.entries(typeObj)) {
+  
+        arr.push(
+          <div className="flex flex-col w-10 ">
+            <div className={`flex justify-center items-center w-10 py-2 border-2 border-solid rounded-lg text-white text-sm font-medium mb-0.5 drop-shadow-md text-shadow ${typeColorObject[key].background} ${typeColorObject[key].border}`}>{key.toUpperCase().substring(0,3)}</div>
+            <div className={`flex justify-center items-center w-10 h-10 py-2 text-yellow-300 rounded-lg text-sm ${damageColorObject[value]}`}>{damageValueReplace(value)}</div>
+          </div>
+          );
+      }
+      setTypeMatchup(arr);
     }
-    
-    // console.log(typeObj);
-    let arr = [];
+    // setPromise5(damageCalculate);
+    damageCalculate();
 
-
-    for (const [key, value] of Object.entries(typeObj)) {
-
-      arr.push(
-        <div className="flex flex-col w-10 ">
-          <div className={`flex justify-center items-center w-10 py-2 border-2 border-solid rounded-lg text-white text-sm font-medium mb-0.5 drop-shadow-md text-shadow ${typeColorObject[key].background} ${typeColorObject[key].border}`}>{key.toUpperCase().substring(0,3)}</div>
-          <div className={`flex justify-center items-center w-10 h-10 py-2 text-yellow-300 rounded-lg text-sm ${damageColorObject[value]}`}>{damageValueReplace(value)}</div>
-        </div>
-        );
-    }
-
-    setTypeMatchup(arr);
   }, [types, selects]);
+
+  // Promise.all([promise2, promise3, promise4, promise5]).then(() => {
+  //   setLoading(true);
+  // });
 
 
   const damageValueReplace = (val) => {
@@ -269,27 +261,32 @@ const PokepediaComponent = () => {
 
 
 
+// useEffect(() => {
+//   async function getir() {
+//     const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0');
+//     const data = await response.json();
+//     data.results.forEach((x) => {
+//       if(x.name.includes('-')){
+//         console.log(x);
+//       }
+//     });
+
+//   }
+//   getir();
+// }, [pokeInfo]);
 
 
 
-  const handlePre = (pokeID) => {
-    setPokeName(pokeID);
-  }
-
-  const handleNext = (pokeID) => {
-    setPokeName(pokeID);
-  }
 
 
-  
+  // Dropdown listteki seçilen elemanı ata
   useEffect(() =>{
     if(!selects){
       return;
     }
-    // console.log(selects);
-    // setSelectedOption(selects);
+
     setPokeInfo(pokeForm[selects]);
-  }, [selects]);
+  }, [selects, pokeForm]);
 
 
 
@@ -302,107 +299,50 @@ const PokepediaComponent = () => {
 
 
 
-  const makeUpper = (val) =>{
-    val = val.split(" ");
-    for(let i = 0; i < val.length; i++){
-        let firstLetter = val[i][0];
-        let otherVal = val[i].substr(1);
-        val[i] = firstLetter.toUpperCase() + otherVal;
-    }
 
-    return val.join(" ");
-  }
 
-  const handleClick = (ev = '') => {
-    if(inputVal.trim() === ''){
-      return;
-    }
-
-    if(ev === 'Enter'){
-      document.querySelector('.inputClass').blur();
-    }
-
-    setPokeName(inputVal.toLowerCase());
-    // console.log(inputVal);
-    setInputVal('');
-  }
 
       return(
         <div className="flex flex-col justify-start items-center w-full h-screen">
 
           {/* Input */}
-          <div className="flex justify-start items-center w-96 p-5 bg-gray-700 mb-5">
+          {/* <div className="flex justify-start items-center w-96 p-5 bg-gray-700 mb-5">
             <input type="text" value={inputVal} placeholder="Search" className="inputClass mr-5 p-2.5 rounded-full focus:outline-none" onChange={getValue}
             onKeyPress={(ev) => { if (ev.key === "Enter")  {handleClick(ev.key);}}}
             ></input>
             <div className="searchBtn cursor-pointer text-white p-2 border-2 border-solid bg-violet-800 border-violet-900 rounded-full border" onClick={() => handleClick()}>
                 Search
             </div>
-          </div>
+          </div> */}
+          <Input />
 
           {/* Content */}
           <div className="flex flex-col items-center">
             {
-              pokeInfo && (
+              pokeInfo &&
                 <>
                   {/* Previous - Next Buttons */}
-                  <div className="w-96 flex justify-between">
-                    <button className={`text-white bg-indigo-700 p-5 rounded-full ${pokeId - 1 ? "visible" : "invisible"}`} onClick={() => handlePre(pokeId - 1)}>{`#${pokeId - 1}`}</button>
-                    <button className={`text-white bg-indigo-700 p-5 rounded-full`} onClick={() => handleNext(pokeId + 1)}>{`#${pokeId + 1}`}</button> 
-                  </div>
+                  <PreviousAndNext pokeInfo={pokeInfo} pokeId={pokeId} />
                 
-                  
+                  <PokeCard pokeInfo={pokeInfo} pokeSpeciesData={pokeSpeciesData} pokeId={pokeId} typeMatchup={typeMatchup}/>
                     
                   <div className="flex flex-col items-center w-96 mb-24">
-                    <div>
-                      <img src={`${pokeInfo.sprites.front_default}`} alt="" className="w-48 h-48"/>
-                    </div>
-                    <div>{`#${pokeId}`}</div>
-                    <div>{`${makeUpper(pokeInfo.name)}`}</div>
-                    <div className="w-2/4 flex justify-around my-3">
-                      {pokeInfo.types.map((x, i) => {
-                        return(
-                          <div key={i} className={`text-white rounded-2xl py-0.5 px-2 drop-shadow-xl border-2 border-solid text-shadow ${typeColorObject[x.type.name].background} ${typeColorObject[x.type.name].border}`}>{makeUpper(x.type.name)}</div>
-                        )
-                      })}
-                    </div>
+                    
+                    
 
-
-                    <div className="">
-                      {pokeInfo.stats.map((pokemonStatInfo, keyIndex) =>{
-                        return(
-                          <div key={keyIndex}>                     
-                            <div>{`${pokemonStatInfo.stat.name}: ${pokemonStatInfo.base_stat}`}</div>
-                              <div className="w-64 bg-gray-200 rounded-full h-2.5 dark:bg-indigo-300">
-                              <div className="bg-indigo-600 h-2.5 rounded-full" style={{width: `calc(${pokemonStatInfo.base_stat / 2}% )`}}></div>
-                            </div>
-                          </div>
-                        )
-                      })}
-                    </div>
-
+                    
+                    
+                    
                   <select value={selects} onChange={e => setSelects(e.target.value)} className="w-48 my-10" id="dropList">
                   {
                     pokeForm.map((x, i) => {
                       return(
-                        <option key={i} value={i}>{x.name}</option>
+                        <option key={i} value={i}>{makeUpper(x.name.replaceAll('-', ' '))}</option>
                       )
                     })
                   }
                   </select>
-                  <div>
-                    <div className="font-bold text-3xl">Type defenses</div>
-                    <div className="mb-2 mt-4">The effectiveness of each type on <span className="italic">{makeUpper(pokeInfo.name)}</span>.</div>
-                    <div className="w-96 flex flex-wrap justify-evenly items-center h-44">
-                      {
-                        typeMatchup.map((x, i) =>{
-                          return(
-                            <div key={i}>{x}</div>
-                          )
-                        })
-                      }
-                    </div>
-                  </div>
+                  
                   
 
 
@@ -410,7 +350,6 @@ const PokepediaComponent = () => {
 
                   </div>
                 </>
-              )
             }
           </div>
 
