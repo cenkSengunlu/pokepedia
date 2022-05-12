@@ -1,24 +1,29 @@
-import React from 'react';
+import React,{useContext} from 'react';
 import typeColorObject from '../typeColorObject';
 import makeUpper from '../makeUpper';
-
+import DropDown from './DropDown';
+import TypeDexContext from '../context/TypeDexContext';
 import StatBar from './StatBar';
 import TypeDefense from './TypeDefense';
+import InputContext from '../context/InputContext';
 
-function PokeCard({pokeInfo, pokeSpeciesData, pokeId, typeMatchup}) {
+function PokeCard({pokeInfo, pokeForm, pokeSpeciesData, pokeId, typeMatchup}) {
+  const {setTypeDex, setTitle} = useContext(TypeDexContext);
+  const {setPokeName} = useContext(InputContext);
   return (
     <>
-    {pokeInfo && pokeSpeciesData && pokeId && typeMatchup &&
-      <div className='grid grid-cols-3 gap-8 mt-20  p-5 '>
+    {pokeInfo && pokeForm && pokeSpeciesData && pokeId && typeMatchup &&
+      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-20  p-5 '>
       {/* #1 */}
-      <div className='w-96 h-64 flex justify-center '>
-        <img src={`https://img.pokemondb.net/artwork/${pokeInfo.name}.jpg`} onError={({ currentTarget }) => {
+      <div className='w-fit h-fit'>
+        <DropDown pokeForm={pokeForm}/>
+        <img className='' src={`https://img.pokemondb.net/artwork/${pokeInfo.name === 'mimikyu-disguised' ? 'mimikyu' : pokeInfo.name}.jpg`} onError={({ currentTarget }) => {
                                                                               currentTarget.onerror = null; // prevents looping
-                                                                              console.log(currentTarget.src);
       
                                                                               currentTarget.src = currentTarget.src === 'http://localhost:3000/null' ? 'https://i.pinimg.com/originals/13/9a/19/139a190b930b8efdecfdd5445cae7754.png' : pokeInfo.sprites.front_default;
-                                                                              // currentTarget.src=pokeInfo.sprites.front_default;
+                                                                              
                                                                             }} alt={`${pokeInfo.name}`}/>
+        
       </div>
                                                                           
       {/* #2 */}
@@ -44,7 +49,7 @@ function PokeCard({pokeInfo, pokeSpeciesData, pokeId, typeMatchup}) {
           <div className="w-1/3 flex justify-start">
             {pokeInfo.types.map((x, i) => {
               return(
-                <div key={i} className={`text-white rounded-lg py-0.5 px-2 drop-shadow-xl border-2 border-solid text-shadow mr-2 ${typeColorObject[x.type.name].background} ${typeColorObject[x.type.name].border}`}>{makeUpper(x.type.name)}</div>
+                <div key={i} onClick={() => {setTypeDex(x.type.name); setPokeName(''); setTitle(`${makeUpper(x.type.name)} | Poképedia`)}} className={`text-white cursor-pointer rounded-lg py-0.5 px-2 drop-shadow-xl border-2 border-solid text-shadow mr-2  ${typeColorObject[x.type.name].background} ${typeColorObject[x.type.name].border}`}>{makeUpper(x.type.name)}</div>
               )
             })}
           </div>
@@ -84,9 +89,16 @@ function PokeCard({pokeInfo, pokeSpeciesData, pokeId, typeMatchup}) {
           <>
             <div className="w-full flex items-center justify-start my-2">
               <div className="w-28 flex justify-end text-md text-zinc-500 text-sm">Local No&nbsp;&nbsp;&nbsp;&nbsp;</div>
-              <div className='flex'>
-                <div className="font-bold">{String(pokeSpeciesData.pokedex_numbers[1].entry_number).padStart(3, '0')}</div>
-                <div className='text-zinc-500 text-sm flex items-center'>&nbsp;({makeUpper((pokeSpeciesData.pokedex_numbers[1].pokedex.name).replaceAll('-', ' '))})</div>
+              <div className='flex flex-col'>
+                  {pokeSpeciesData.pokedex_numbers.filter(item => item.pokedex.name !== 'national').map((item, index) => {
+                    return (
+                      <div key={index} className='flex'>
+                        <div className="font-bold">{String(item.entry_number).padStart(3, '0')}</div>
+                        <div className='text-zinc-500 text-sm flex items-center'>&nbsp;({makeUpper((item.pokedex.name).replaceAll('-', ' '))})</div>
+                      </div>
+                    )
+                  })}
+                
               </div>
             </div>
           </>
@@ -107,21 +119,15 @@ function PokeCard({pokeInfo, pokeSpeciesData, pokeId, typeMatchup}) {
         </div>
         </div>   
 
-        {/* #4*/}
-        <div>
-          <div className="">
-            <div className="font-bold text-3xl mb-5">Mode select</div>
-          </div>
-        </div>
 
 
         {/* #5 */}
-        <div>
+        <div className='col-start-1'>
           <StatBar pokeInfo={pokeInfo}/>
         </div>
 
         {/* #6 */}
-        <div>
+        <div className='col-start-3'>
           <TypeDefense pokeInfo={pokeInfo} typeMatchup={typeMatchup}/>
         </div>
 
@@ -133,4 +139,4 @@ function PokeCard({pokeInfo, pokeSpeciesData, pokeId, typeMatchup}) {
   )
 }
 
-export default PokeCard
+export default PokeCard;

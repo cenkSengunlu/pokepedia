@@ -4,6 +4,9 @@
 
 *{
   font-family: "Fira Sans","Trebuchet MS",Ubuntu,Helvetica,Arial,sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 .text-shadow{
@@ -12,4 +15,16 @@
 
 .preBtn, .nextBtn{
   background-color: #282936;
+}
+
+.search{
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
+body{
+  padding: 125px 0 125px 0;
 }

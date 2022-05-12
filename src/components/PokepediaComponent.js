@@ -3,13 +3,15 @@ import typeDefenseObject from '../typeDefenseObject';
 import typeColorObject from '../typeColorObject';
 import damageColorObject from '../damageColorObject';
 import InputContext from '../context/InputContext';
+import DropDownContext from '../context/DropDownContext';
+import TypeDexContext from '../context/TypeDexContext';
 import Input from './Input';
-import TypeDefense from './TypeDefense';
 import PokeCard from './PokeCard';
-import StatBar from './StatBar';
+import Pokedex from './Pokedex';
 import PreviousAndNext from './PreviousAndNext';
 import makeUpper from '../makeUpper';
 import whiteList from '../whiteList';
+import pokeNameFix from '../pokeNameFix';
 
 
 const PokepediaComponent = () => {
@@ -18,10 +20,13 @@ const PokepediaComponent = () => {
   // const [inputVal, setInputVal] = useState("");
 
   // Inputtan gelen verinin atandığı state
-  const {pokeName, setPokeName} = useContext(InputContext);
+  const {pokeName} = useContext(InputContext);
+
+  // Pokedex'i seçili type'a göre filtrelemek için type bilgisini tutan state
+  const {typeDex} = useContext(TypeDexContext);
 
   // Pokemon bilgilerini tutan obje
-  const [pokeInfo, setPokeInfo] = useState(null);
+  const {pokeInfo, setPokeInfo} = useContext(DropDownContext);
 
   // Pokemon'ların form(mod) bilgilerini tutan obje dizisi
   const [pokeForm, setPokeForm] = useState([]);
@@ -30,13 +35,13 @@ const PokepediaComponent = () => {
   const [pokeSpeciesData, setPokeSpeciesData] = useState(null);
 
   // Sayfa başlığı değerini tutan state
-  const [title, setTitle] = useState("Poképedia");
+  const {title, setTitle} = useContext(TypeDexContext);
 
   // Seçili Pokemon'un pokedex numarasını tutan state
   const [pokeId, setPokeId] = useState();
 
   // Seçili dropdown list elemanının değerini id değerini tutan state
-  const [selects, setSelects] = useState(0);
+  const {selects, setSelects} = useContext(DropDownContext);
 
   // Seçili Pokemon'un formlarının(mod) type bilgilerini tutan obje dizisi
   const [types, setTypes] = useState();
@@ -61,6 +66,7 @@ const PokepediaComponent = () => {
       // Tür Bilgisi
       const response2 = await fetch(data.species.url);
       const data2 = await response2.json();
+      setSelects(0);
 
       // Pokemon'un genel bilgisini set et
       setPokeInfo(data);
@@ -71,12 +77,12 @@ const PokepediaComponent = () => {
       setPokeId(data.id);
 
       // Mod isimlerini listeleyen dropdown list'in seçili eleman numarasını set et
-      setSelects(0);
+      
       console.log(data);
       console.log(data2);
 
       // Site başlığını set et
-      setTitle(`${makeUpper(data.name)} | Poképedia`);
+      setTitle(`${makeUpper(pokeNameFix[data.name] ? pokeNameFix[data.name].replaceAll('-', ' ') : data.name.replaceAll('-', ' '))} | Poképedia`);
     }
     // setPromise2(getPokeData);
     getPokeData();
@@ -261,32 +267,9 @@ const PokepediaComponent = () => {
 
 
 
-// useEffect(() => {
-//   async function getir() {
-//     const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0');
-//     const data = await response.json();
-//     data.results.forEach((x) => {
-//       if(x.name.includes('-')){
-//         console.log(x);
-//       }
-//     });
-
-//   }
-//   getir();
-// }, [pokeInfo]);
-
-
-
-
 
   // Dropdown listteki seçilen elemanı ata
-  useEffect(() =>{
-    if(!selects){
-      return;
-    }
 
-    setPokeInfo(pokeForm[selects]);
-  }, [selects, pokeForm]);
 
 
 
@@ -315,40 +298,21 @@ const PokepediaComponent = () => {
             </div>
           </div> */}
           <Input />
+          {
+            !pokeName && <Pokedex typeDex={typeDex}/>
+          }
+          
 
           {/* Content */}
           <div className="flex flex-col items-center">
             {
-              pokeInfo &&
+              pokeInfo && pokeName &&
                 <>
                   {/* Previous - Next Buttons */}
                   <PreviousAndNext pokeInfo={pokeInfo} pokeId={pokeId} />
                 
-                  <PokeCard pokeInfo={pokeInfo} pokeSpeciesData={pokeSpeciesData} pokeId={pokeId} typeMatchup={typeMatchup}/>
+                  <PokeCard pokeInfo={pokeInfo} pokeForm={pokeForm} pokeSpeciesData={pokeSpeciesData} pokeId={pokeId} typeMatchup={typeMatchup}/>
                     
-                  <div className="flex flex-col items-center w-96 mb-24">
-                    
-                    
-
-                    
-                    
-                    
-                  <select value={selects} onChange={e => setSelects(e.target.value)} className="w-48 my-10" id="dropList">
-                  {
-                    pokeForm.map((x, i) => {
-                      return(
-                        <option key={i} value={i}>{makeUpper(x.name.replaceAll('-', ' '))}</option>
-                      )
-                    })
-                  }
-                  </select>
-                  
-                  
-
-
-
-
-                  </div>
                 </>
             }
           </div>
