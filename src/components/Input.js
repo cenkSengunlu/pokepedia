@@ -62,7 +62,7 @@ function Input() {
     <div className="search flex justify-between items-center w-full p-5 bg-neutral-800 mb-5">
 
       <div className='text-2xl text-white cursor-pointer' onClick={() => {
-        setPokeName(''); 
+        setPokeName('');
         setTypeDex('');
         setTitle("Pokédex | Poképedia");
       }}>

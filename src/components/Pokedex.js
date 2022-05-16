@@ -12,9 +12,10 @@ function Pokedex({typeDex}) {
 
     useEffect(() => {
       if(typeDex){
+        setPokedex([]);
         return;
       }
-      setPokedex([]);
+      
         async function getPokedex(){
             const response = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=12&offset=${counter}`);
             const data = await response.json();
@@ -34,9 +35,10 @@ function Pokedex({typeDex}) {
 
     useEffect(() => {
       if(!typeDex){
+        setPokedex([]);
         return;
       }
-      setPokedex([]);
+      
 
       async function getTypeDex(){
         const response = await fetch(`https://pokeapi.co/api/v2/type/${typeDex}/`);
