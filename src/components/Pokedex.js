@@ -76,7 +76,7 @@ function Pokedex({typeDex}) {
 
             <div className='grid grid-cols-4 gap-8'>
             
-              {pokedex.map((item, index) => {
+              {pokedex.sort((a, b) => a.id - b.id).map((item, index) => {
                 return (
                   <div key={index} className={`bg-zinc-200 text-zinc-500 rounded-2xl py-5 px-6 cursor-pointer w-48 ${typeColorObject[item.types[0].type.name].cardBackground} `} onClick={() => setPokeName(item.name)}>
                     <div className='flex justify-center items-center mb-2'>
