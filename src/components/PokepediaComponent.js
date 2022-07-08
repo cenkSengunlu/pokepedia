@@ -6,7 +6,7 @@ import InputContext from '../context/InputContext';
 import DropDownContext from '../context/DropDownContext';
 import TypeDexContext from '../context/TypeDexContext';
 import Input from './Input';
-import PokeCard from './PokeCard';
+import PokeInfoPage from './PokeInfoPage';
 import Pokedex from './Pokedex';
 import PreviousAndNext from './PreviousAndNext';
 import makeUpper from '../makeUpper';
@@ -16,8 +16,9 @@ import pokeNameFix from '../pokeNameFix';
 
 const PokepediaComponent = () => {
 
-  // Inputtan gelen değeri tutan state
-  // const [inputVal, setInputVal] = useState("");
+  // Pokemonların tüm bilgilerini tutan test objesi
+  const [testInfo, setTestInfo] = useState({});
+  
 
   // Inputtan gelen verinin atandığı state
   const {pokeName} = useContext(InputContext);
@@ -311,7 +312,7 @@ const PokepediaComponent = () => {
                   {/* Previous - Next Buttons */}
                   <PreviousAndNext pokeInfo={pokeInfo} pokeId={pokeId} />
                 
-                  <PokeCard pokeInfo={pokeInfo} pokeForm={pokeForm} pokeSpeciesData={pokeSpeciesData} pokeId={pokeId} typeMatchup={typeMatchup}/>
+                  <PokeInfoPage pokeInfo={pokeInfo} pokeForm={pokeForm} pokeSpeciesData={pokeSpeciesData} pokeId={pokeId} typeMatchup={typeMatchup}/>
                     
                 </>
             }

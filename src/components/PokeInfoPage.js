@@ -7,7 +7,7 @@ import StatBar from './StatBar';
 import TypeDefense from './TypeDefense';
 import InputContext from '../context/InputContext';
 
-function PokeCard({pokeInfo, pokeForm, pokeSpeciesData, pokeId, typeMatchup}) {
+function PokeInfoPage({pokeInfo, pokeForm, pokeSpeciesData, pokeId, typeMatchup}) {
   const {setTypeDex, setTitle} = useContext(TypeDexContext);
   const {setPokeName} = useContext(InputContext);
   return (
@@ -139,4 +139,4 @@ function PokeCard({pokeInfo, pokeForm, pokeSpeciesData, pokeId, typeMatchup}) {
   )
 }
 
-export default PokeCard;
+export default PokeInfoPage;
