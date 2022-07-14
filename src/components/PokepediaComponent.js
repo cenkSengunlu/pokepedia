@@ -15,9 +15,6 @@ import pokeNameFix from '../pokeNameFix';
 
 
 const PokepediaComponent = () => {
-
-  // Pokemonların tüm bilgilerini tutan test objesi
-  const [testInfo, setTestInfo] = useState({});
   
 
   // Inputtan gelen verinin atandığı state
@@ -269,12 +266,6 @@ const PokepediaComponent = () => {
 
 
 
-  // Dropdown listteki seçilen elemanı ata
-
-
-
-
-
 
 
   useEffect(() => {
@@ -288,16 +279,6 @@ const PokepediaComponent = () => {
 
       return(
         <div className="flex flex-col justify-start items-center w-full h-screen">
-
-          {/* Input */}
-          {/* <div className="flex justify-start items-center w-96 p-5 bg-gray-700 mb-5">
-            <input type="text" value={inputVal} placeholder="Search" className="inputClass mr-5 p-2.5 rounded-full focus:outline-none" onChange={getValue}
-            onKeyPress={(ev) => { if (ev.key === "Enter")  {handleClick(ev.key);}}}
-            ></input>
-            <div className="searchBtn cursor-pointer text-white p-2 border-2 border-solid bg-violet-800 border-violet-900 rounded-full border" onClick={() => handleClick()}>
-                Search
-            </div>
-          </div> */}
           <Input />
           {
             !pokeName && <Pokedex typeDex={typeDex}/>

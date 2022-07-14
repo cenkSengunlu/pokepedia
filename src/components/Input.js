@@ -5,7 +5,7 @@ import TypeDexContext from '../context/TypeDexContext';
 
 function Input() {
   const {setPokeName} = useContext(InputContext);
-  const {setTypeDex, setPokedex} = useContext(TypeDexContext);
+  const {setTypeDex} = useContext(TypeDexContext);
   const [inputVal, setInputVal] = useState("");
   const [result, setResult] = useState([]);
   const {setTitle} = useContext(TypeDexContext);
