@@ -1,4 +1,4 @@
-import React,{useContext} from 'react';
+import React, { useEffect, useContext } from 'react';
 import typeColorObject from '../typeColorObject';
 import makeUpper from '../makeUpper';
 import DropDown from './DropDown';
@@ -6,10 +6,22 @@ import TypeDexContext from '../context/TypeDexContext';
 import StatBar from './StatBar';
 import TypeDefense from './TypeDefense';
 import InputContext from '../context/InputContext';
+import { useParams, useNavigate } from 'react-router-dom';
 
 function PokeInfoPage({pokeInfo, pokeForm, pokeSpeciesData, pokeId, typeMatchup}) {
+  const params = useParams();
+  const navigate = useNavigate();
   const {setTypeDex, setTitle} = useContext(TypeDexContext);
   const {setPokeName} = useContext(InputContext);
+
+  // useEffect(() => {
+  //   if(!params.typeName){
+  //     return;
+  //   }
+  //   setPokeName('');
+  //   setTypeDex(params.typeName);
+  // }, [params.typeName]);
+
   return (
     <>
     {pokeInfo && pokeForm && pokeSpeciesData && pokeId && typeMatchup &&
@@ -49,7 +61,7 @@ function PokeInfoPage({pokeInfo, pokeForm, pokeSpeciesData, pokeId, typeMatchup}
           <div className="w-1/3 flex justify-start">
             {pokeInfo.types.map((x, i) => {
               return(
-                <div key={i} onClick={() => {setTypeDex(x.type.name); setPokeName(''); setTitle(`${makeUpper(x.type.name)} | Poképedia`)}} className={`text-white cursor-pointer rounded-lg py-0.5 px-2 drop-shadow-xl border-2 border-solid text-shadow mr-2  ${typeColorObject[x.type.name].background} ${typeColorObject[x.type.name].border}`}>{makeUpper(x.type.name)}</div>
+                <div key={i} onClick={() => {setTypeDex(x.type.name); setPokeName(''); setTitle(`${makeUpper(x.type.name)} | Poképedia`); navigate(`/pokedex/${(x.type.name).toLowerCase()}`)}} className={`text-white cursor-pointer rounded-lg py-0.5 px-2 drop-shadow-xl border-2 border-solid text-shadow mr-2  ${typeColorObject[x.type.name].background} ${typeColorObject[x.type.name].border}`}>{makeUpper(x.type.name)}</div>
               )
             })}
           </div>

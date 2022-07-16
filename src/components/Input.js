@@ -2,14 +2,18 @@ import React, {useState, useContext, useRef, useEffect} from 'react';
 import InputContext from '../context/InputContext';
 import autoCompleteArr from '../autoCompleteArr';
 import TypeDexContext from '../context/TypeDexContext';
+import { NavLink, useNavigate } from 'react-router-dom';
 
 function Input() {
+  const navigate = useNavigate();
   const {setPokeName} = useContext(InputContext);
   const {setTypeDex} = useContext(TypeDexContext);
   const [inputVal, setInputVal] = useState("");
   const [result, setResult] = useState([]);
   const {setTitle} = useContext(TypeDexContext);
   const inputRef = useRef();
+
+
 
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
@@ -51,6 +55,7 @@ function Input() {
     if(ev === 'Enter'){
       document.querySelector('.inputClass').blur();
     }
+    navigate(`/pokemon/${inputVal.toLowerCase()}`);
     setPokeName(inputVal.toLowerCase());
     setInputVal('');
     setResult([]);
@@ -60,14 +65,32 @@ function Input() {
     <>
     {result && 
     <div className="search flex justify-between items-center w-full p-5 bg-neutral-800 mb-5">
+      <div>
 
-      <div className='text-2xl text-white cursor-pointer' onClick={() => {
-        setPokeName('');
-        setTypeDex('');
-        setTitle("Pokédex | Poképedia");
-      }}>
-        {/* <img src="../images/logo.png" alt="Poképedia Logo" /> */}
-        Poképedia
+      
+        <NavLink to='/pokepedia'
+          className='text-2xl text-white cursor-pointer' 
+          onClick={() => {
+            setTitle('Poképedia');
+            setPokeName('');
+            setTypeDex('');
+
+          }}
+        >
+          Poképedia
+        </NavLink>
+
+        <NavLink to='/pokedex' 
+          className='text-lg ml-12 text-white cursor-pointer'  
+          onClick={() => {
+            setTitle("Pokédex | Poképedia")
+            setPokeName('');
+            setTypeDex('');
+
+          }}
+        >
+          Pokédex
+        </NavLink>
       </div>
 
       <div className='flex items-center'>
@@ -77,7 +100,7 @@ function Input() {
           ></input>
 
           <div className='search-result w-52 min-w-52 left-0 absolute mt-7 rounded bg-zinc-800'>
-            {result.map((item, index) => (<div key={index} className='search-result-item py-2.5 px-4 border-b border-zinc-200 last:border-0 text-white hover:bg-zinc-700 cursor-pointer' onClick={() => {setPokeName(item.toLowerCase()); setInputVal(''); setResult([]);}}>
+            {result.map((item, index) => (<div key={index} className='search-result-item py-2.5 px-4 border-b border-zinc-200 last:border-0 text-white hover:bg-zinc-700 cursor-pointer' onClick={() => {setPokeName(item.toLowerCase()); setInputVal(''); navigate(`/pokemon/${item.toLowerCase()}`); setResult([]);}}>
               {item}
             </div>))}
 

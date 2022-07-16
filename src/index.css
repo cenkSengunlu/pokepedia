@@ -28,3 +28,15 @@
 body{
   padding: 125px 0 125px 0;
 }
+
+ul.firstList li::marker{
+  color: #386abb;
+}
+
+ul.secondList li::marker{
+  color: #ffcc03;
+}
+
+.linkColor{
+  color: #386abb;
+}

@@ -3,6 +3,7 @@ import makeUpper from '../makeUpper';
 import typeColorObject from '../typeColorObject';
 import InputContext from '../context/InputContext';
 import pokeNameFix from '../pokeNameFix';
+import { NavLink } from 'react-router-dom';
 
 function PokeCard(pokemon) {
   const {setPokeName} = useContext(InputContext);
@@ -20,7 +21,7 @@ function PokeCard(pokemon) {
     <>
       {pokemon && pokeCardTitle && typeColor &&
         <>
-          <div className={`bg-zinc-200 text-zinc-500 rounded-2xl py-5 px-6 cursor-pointer w-48 ${typeColor} `} onClick={() => setPokeName(pokemon.pokemon.name)}>
+          <NavLink to={`/pokemon/${pokemon.pokemon.name}`} className={`bg-zinc-200 text-zinc-500 rounded-2xl py-5 px-6 cursor-pointer w-48 ${typeColor} `} onClick={() => setPokeName(pokemon.pokemon.name)}>
             <div className='flex justify-center items-center mb-2'>
               <img className={`max-w-36 max-h-36 w-36 h-36  bg-white p-2 border-2 border-zinc-400 rounded-xl object-scale-down`} src={`https://img.pokemondb.net/artwork/${pokemon.pokemon.name === 'mimikyu-disguised' ? 'mimikyu' : pokemon.pokemon.name}.jpg`} onError={({ currentTarget }) => {
                                                                         currentTarget.onerror = null; // prevents looping
@@ -39,7 +40,7 @@ function PokeCard(pokemon) {
               })}
             </div>
             
-          </div>
+          </NavLink>
         </>
       }
     </>

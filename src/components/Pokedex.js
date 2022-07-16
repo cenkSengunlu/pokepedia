@@ -1,14 +1,15 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import makeUpper from '../makeUpper';
 import PokeCard from './PokeCard';
+import TypeDexContext from '../context/TypeDexContext';
 
 
-function Pokedex({typeDex}) {
+function Pokedex({typeDex, paramDex}) {
     const [counter, setCounter] = useState(0);
-    const [pokedex, setPokedex] = useState([]);
+    const {pokedex, setPokedex} = useContext(TypeDexContext);
 
     useEffect(() => {
-      if(typeDex){
+      if(typeDex || paramDex){
         setPokedex([]);
         return;
       }
@@ -30,12 +31,11 @@ function Pokedex({typeDex}) {
 
 
     useEffect(() => {
-      if(!typeDex){
+      if(!typeDex  || !paramDex){
         setPokedex([]);
         return;
       }
-      
-
+      console.log(paramDex);
       async function getTypeDex(){
         const response = await fetch(`https://pokeapi.co/api/v2/type/${typeDex}/`);
         const data = await response.json();

@@ -5,7 +5,7 @@ import damageColorObject from '../damageColorObject';
 import InputContext from '../context/InputContext';
 import DropDownContext from '../context/DropDownContext';
 import TypeDexContext from '../context/TypeDexContext';
-import Input from './Input';
+
 import PokeInfoPage from './PokeInfoPage';
 import Pokedex from './Pokedex';
 import PreviousAndNext from './PreviousAndNext';
@@ -13,15 +13,20 @@ import makeUpper from '../makeUpper';
 import whiteList from '../whiteList';
 import pokeNameFix from '../pokeNameFix';
 
+import { useParams, useNavigate } from 'react-router-dom';
+
 
 const PokepediaComponent = () => {
-  
+
+
+  const params = useParams();
+  const navigate = useNavigate();
 
   // Inputtan gelen verinin atandığı state
-  const {pokeName} = useContext(InputContext);
+  const {pokeName, setPokeName} = useContext(InputContext);
 
   // Pokedex'i seçili type'a göre filtrelemek için type bilgisini tutan state
-  const {typeDex} = useContext(TypeDexContext);
+  const {typeDex, setTypeDex, pokedex, setPokedex} = useContext(TypeDexContext);
 
   // Pokemon bilgilerini tutan obje
   const {pokeInfo, setPokeInfo} = useContext(DropDownContext);
@@ -47,8 +52,24 @@ const PokepediaComponent = () => {
   // Pokemon'ların type hasar etkileşim tablosunu tutan obje
   const [typeMatchup, setTypeMatchup] = useState([]);
 
+  //Pokemon'un Evrim Ağacını Tutan State
+  const [evolutionChart, setEvolutionChart] = useState();
 
 
+
+  useEffect(() => {
+    if(params.typeName){
+      console.log(params.typeName);
+      setTypeDex(params.typeName);
+      // setPokeName('');
+      // navigate(`/pokedex/${typeDex.toLowerCase()}`);
+    } else if(params.pokeName){
+      console.log(params);
+      setTypeDex('');
+      setPokeName(params.pokeName);
+    }
+    
+  }, [params.typeName, params.pokeName]);
 
   // Aranan Pokemon eğer varsa genel bilgilerini ve Tür bilgilerini fetch et
   useEffect(() => { 
@@ -89,45 +110,70 @@ const PokepediaComponent = () => {
 
 
   // Aranan/Seçilen Pokemon'un evrim ağacını fetch et
-  // useEffect(() => {
-  //   if(!pokeId || !pokeSpeciesData){
-  //     return;
-  //   }
+  useEffect(() => {
+    if(!pokeId || !pokeSpeciesData){
+      return;
+    }
     
-  //   async function getPokemonEvolutions() {
-  //     // Aranan/Seçilen Pokemon'un evrim ağacı bilgisi
-  //     const response = await fetch(pokeSpeciesData.evolution_chain.url);
-  //     const data = await response.json();
-  //     console.log(data);
-  //     // setPokeEvo(data);
+    async function getPokemonEvolutions() {
+      // Aranan/Seçilen Pokemon'un evrim ağacı bilgisi
+      const response = await fetch(pokeSpeciesData.evolution_chain.url);
+      const data = await response.json();
+      setEvolutionChart(data);
+      console.log(data);
+      // setPokeEvo(data);
 
-  //     // Evrim ağacını her bir evrim için dizi olarak tutacak obje
-  //     let evolutionObj = {};
+      // Evrim ağacını her bir evrim için dizi olarak tutacak obje
+      // let evolutionObj = {};
+      // let ct = 1;
+      
 
-  //     // Evrim ağacında içeriye doğru gitmek için gereken yol
-  //     let evolutionChain = data.chain.evolves_to;
+      // Evrim ağacında içeriye doğru gitmek için gereken yol
+      // let evolutionChain = data.chain.evolves_to;
 
-  //     // Evrim ağacı objesinin ilk elemanı
-  //     evolutionObj[`evo${Object.keys(evolutionObj).length + 1}`] = [data.chain.species.url];
-  //     // console.log(data2.chain.species.url);
+      // Evrim ağacı objesinin ilk elemanı
+      // evolutionObj[`evo${Object.keys(evolutionObj).length + 1}`] = [data.chain.species.url];
+      // console.log(data2.chain.species.url);
 
-  //     // Feth ettiğimiz objede bir üst evrimi alabilmek için döngü (recursive mantığını anladığımda recursive ile yapacağım)
-  //     while(evolutionChain.length) {
-  //       evolutionObj[`evo${Object.keys(evolutionObj).length + 1}`] = [];
+      // Feth ettiğimiz objede bir üst evrimi alabilmek için döngü (recursive mantığını anladığımda recursive ile yapacağım)
+      // while(evolutionChain.length) {
+      //   evolutionObj[`evo${Object.keys(evolutionObj).length + 1}`] = [];
 
-  //       // Bazı pokemonlar birden çok pokemona evrimleşebildiği için gelen arrayi mapleyerek mevcut key'in değeri olan diziye yeni eleman ekliyorum
-  //       evolutionChain.forEach((x) => {
-  //         evolutionObj[`evo${Object.keys(evolutionObj).length}`].push(x.species.url);
-  //         // console.log(x.species.url);
-  //       });
-  //       // Bir üst evrime geç
-  //       evolutionChain = evolutionChain[0].evolves_to;
-  //     }
-  //     console.log(evolutionObj);
-  //   }
-  //   // setPromise3(getPokemonEvolutions);
-  //   getPokemonEvolutions();
-  // }, [pokeId, pokeSpeciesData]);
+        // Bazı pokemonlar birden çok pokemona evrimleşebildiği için gelen arrayi mapleyerek mevcut key'in değeri olan diziye yeni eleman ekliyorum
+        // evolutionChain.forEach((x) => {
+        //   evolutionObj[`evo${Object.keys(evolutionObj).length}`].push(x.species.url);
+          // console.log(x.species.url);
+        // });
+        // Bir üst evrime geç
+        // evolutionChain = evolutionChain[0].evolves_to;
+      // }
+      // console.log(evolutionObj);
+    }
+    // setPromise3(getPokemonEvolutions);
+    getPokemonEvolutions();
+    
+  }, [pokeId, pokeSpeciesData]);
+
+
+  useEffect(() => {
+    if(!evolutionChart){
+      return;
+    }
+    let evolutionObj = {};
+    
+    const getChart = (chartChain) => {
+
+      evolutionObj[`evo${Object.keys(evolutionObj).length + 1}`] = chartChain?.species;
+      if(chartChain.evolves_to.length === 0){
+        return;
+      }
+      getChart(chartChain.evolves_to[0]);
+      console.log(evolutionObj);
+    }
+    getChart(evolutionChart.chain);
+    console.log('-----------------chain');
+    console.log(evolutionChart);
+  }, [evolutionChart]);
 
 
   // Aranan/Seçilen Pokemon'un Form(Mod) bilgilerini fetch et
@@ -279,9 +325,9 @@ const PokepediaComponent = () => {
 
       return(
         <div className="flex flex-col justify-start items-center w-full h-screen">
-          <Input />
+          
           {
-            !pokeName && <Pokedex typeDex={typeDex}/>
+            !pokeName  && <Pokedex typeDex={typeDex} paramDex={params.typeName}/>
           }
           
 
