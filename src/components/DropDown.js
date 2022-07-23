@@ -16,11 +16,11 @@ function DropDown({pokeForm}) {
   return (
     <>
       {pokeForm &&
-        <select value={selects} onChange={e => setSelects(e.target.value)} className="w-48 mb-10" id="dropList">
+        <select value={selects} onChange={e => setSelects(e.target.value)} className="w-48 mb-10 rounded-lg modeDropdown" id="dropList">
         {
           pokeForm.map((x, i) => {
             return(
-              <option key={i} value={i}>{makeUpper(x.name.replaceAll('-', ' '))}</option>
+              <option key={i} className={'p-5'} value={i}>{makeUpper(x.name.replaceAll('-', ' '))}</option>
             )
           })
         }

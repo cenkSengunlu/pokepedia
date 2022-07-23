@@ -17,6 +17,7 @@ function HomePage() {
           <li className='w-fit text-lg'>This informations includes Pokémon modes, stats, type matchups, evolution chart and Pokédex data.</li>
           <li className='w-fit text-lg'>You can access the Pokédex with all the Pokémon.</li>
           <li className='w-fit text-lg'>You can list Pokémon's by type.</li>
+          <li className='w-fit text-lg'>You can search Pokémon's with name or Pokédex number.</li>
           <li className='w-fit text-lg'>You can share your favorite Pokémon with your friends. (If you have one)</li>
           <li className='w-fit text-lg'>Explore the app by going to <NavLink to='/pokedex' className='font-semibold linkColor' onClick={() => setTitle("Pokédex | Poképedia")}>Pokédex</NavLink> or searching for the Pokémon you want.</li>
         </ul>        

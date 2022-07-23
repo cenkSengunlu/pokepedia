@@ -13,10 +13,6 @@
   text-shadow: 1px 1px 2px #000000;
 }
 
-.preBtn, .nextBtn{
-  background-color: #282936;
-}
-
 .search{
   position: fixed;
   top: 0;
@@ -39,4 +35,31 @@ ul.secondList li::marker{
 
 .linkColor{
   color: #386abb;
+}
+
+.bg-31{
+  background-color: #313131;
+}
+
+.modeDropdown{
+  color:white;
+  background-color: #313131;
+  padding: 7px;
+  min-width: 350px;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.modeDropdown > option{
+  background-color: #616161;
+  
+  text-align:center;
+}
+
+.modeDropdown > option:hover{
+  background-color: #313131 !important;
+}
+
+.errorPage{
+  height: calc(100vh - 300px);
 }

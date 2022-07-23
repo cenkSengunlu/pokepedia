@@ -29,7 +29,7 @@ function PokeInfoPage({pokeInfo, pokeForm, pokeSpeciesData, pokeId, typeMatchup}
       {/* #1 */}
       <div className='w-fit h-fit'>
         <DropDown pokeForm={pokeForm}/>
-        <img className='' src={`https://img.pokemondb.net/artwork/${pokeInfo.name === 'mimikyu-disguised' ? 'mimikyu' : pokeInfo.name}.jpg`} onError={({ currentTarget }) => {
+        <img className='w-full' src={`https://img.pokemondb.net/artwork/${pokeInfo.name === 'mimikyu-disguised' ? 'mimikyu' : pokeInfo.name}.jpg`} onError={({ currentTarget }) => {
                                                                               currentTarget.onerror = null; // prevents looping
       
                                                                               currentTarget.src = currentTarget.src === 'http://localhost:3000/null' ? 'https://i.pinimg.com/originals/13/9a/19/139a190b930b8efdecfdd5445cae7754.png' : pokeInfo.sprites.front_default;

@@ -6,6 +6,7 @@ import TypeDexContext from '../context/TypeDexContext';
 
 function Pokedex({typeDex, paramDex}) {
     const [counter, setCounter] = useState(0);
+    const [typeDexLimit, setTypeDexLimit] = useState(12);
     const {pokedex, setPokedex} = useContext(TypeDexContext);
 
     useEffect(() => {
@@ -72,19 +73,37 @@ function Pokedex({typeDex, paramDex}) {
 
             <div className='grid grid-cols-4 gap-8'>
             
-              {pokedex.sort((a, b) => a.id - b.id).map((item, index) => {
+              {!typeDex && pokedex.sort((a, b) => a.id - b.id).map((item, index) => {
                 return (
                   <PokeCard pokemon={item} key={index} />
                 )
                 
               })}
+
+              {typeDex &&
+                  pokedex.sort((a, b) => a.id - b.id).map((item, index) => {
+                    return (
+                      (index < typeDexLimit) &&
+                      <PokeCard pokemon={item} key={index} />
+                    )
+                    
+                  }
+                )}
+
+              
               
             </div>
             {
-              !typeDex && 
+              
+              ( (typeDex &&(pokedex.length >= typeDexLimit)) || (!typeDex &&(pokedex.length >= counter))) &&
+              <button className='mt-10 px-4 py-2 rounded bg-blue-600 text-white select-none' onClick={() => {
+                if(!typeDex){
+                  setCounter(counter + 12);
+                } else{
+                  setTypeDexLimit(typeDexLimit + 12);
+                }
+                
 
-              <button className='mt-10 px-4 py-2 rounded bg-blue-600 text-white' onClick={() => {
-                setCounter(counter + 12);
               }}>Load more Pokémon</button>
             }
             

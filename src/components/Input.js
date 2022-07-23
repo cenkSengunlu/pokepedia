@@ -1,16 +1,18 @@
 import React, {useState, useContext, useRef, useEffect} from 'react';
 import InputContext from '../context/InputContext';
-import autoCompleteArr from '../autoCompleteArr';
 import TypeDexContext from '../context/TypeDexContext';
+import DropDownContext from '../context/DropDownContext';
+import autoCompleteArr from '../autoCompleteArr';
 import { NavLink, useNavigate } from 'react-router-dom';
 
 function Input() {
   const navigate = useNavigate();
   const {setPokeName} = useContext(InputContext);
-  const {setTypeDex} = useContext(TypeDexContext);
+  const {setPokeInfo} = useContext(DropDownContext);
+  const {setTypeDex, setTitle, setPoke404Error} = useContext(TypeDexContext);
   const [inputVal, setInputVal] = useState("");
   const [result, setResult] = useState([]);
-  const {setTitle} = useContext(TypeDexContext);
+  
   const inputRef = useRef();
 
 
@@ -37,7 +39,7 @@ function Input() {
       
       
       if(value){
-        console.log(autoCompleteArr.sort().filter((item) => item.toLowerCase().includes(value.toLowerCase())));
+        // console.log(autoCompleteArr.sort().filter((item) => item.toLowerCase().includes(value.toLowerCase())));
         setResult(autoCompleteArr.sort().filter((item) => item.toLowerCase().includes(value.toLowerCase())).slice(0,12));
         
       }else {
@@ -72,6 +74,8 @@ function Input() {
           className='text-2xl text-white cursor-pointer' 
           onClick={() => {
             setTitle('Poképedia');
+            setPokeInfo(null);
+            setPoke404Error(false);
             setPokeName('');
             setTypeDex('');
 
@@ -83,7 +87,9 @@ function Input() {
         <NavLink to='/pokedex' 
           className='text-lg ml-12 text-white cursor-pointer'  
           onClick={() => {
-            setTitle("Pokédex | Poképedia")
+            setTitle("Pokédex | Poképedia");
+            setPokeInfo(null);
+            setPoke404Error(false);
             setPokeName('');
             setTypeDex('');
 
@@ -100,7 +106,7 @@ function Input() {
           ></input>
 
           <div className='search-result w-52 min-w-52 left-0 absolute mt-7 rounded bg-zinc-800'>
-            {result.map((item, index) => (<div key={index} className='search-result-item py-2.5 px-4 border-b border-zinc-200 last:border-0 text-white hover:bg-zinc-700 cursor-pointer' onClick={() => {setPokeName(item.toLowerCase()); setInputVal(''); navigate(`/pokemon/${item.toLowerCase()}`); setResult([]);}}>
+            {result.map((item, index) => (<div key={index} className='search-result-item py-2.5 px-4 border-b border-zinc-200 last:border-0 text-white hover:bg-zinc-700 cursor-pointer' onClick={() => {setPokeName(item.toLowerCase()); setPokeInfo(null); setInputVal(''); navigate(`/pokemon/${item.toLowerCase()}`); setResult([]);}}>
               {item}
             </div>))}
 

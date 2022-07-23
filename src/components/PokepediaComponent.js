@@ -1,10 +1,13 @@
 import React, {useState, useEffect, useContext} from 'react';
+
+
 import typeDefenseObject from '../typeDefenseObject';
 import typeColorObject from '../typeColorObject';
 import damageColorObject from '../damageColorObject';
 import InputContext from '../context/InputContext';
 import DropDownContext from '../context/DropDownContext';
 import TypeDexContext from '../context/TypeDexContext';
+
 
 import PokeInfoPage from './PokeInfoPage';
 import Pokedex from './Pokedex';
@@ -14,19 +17,22 @@ import whiteList from '../whiteList';
 import pokeNameFix from '../pokeNameFix';
 
 import { useParams, useNavigate } from 'react-router-dom';
+import ErrorPage from './ErrorPage';
 
 
 const PokepediaComponent = () => {
 
 
+
   const params = useParams();
   const navigate = useNavigate();
+
 
   // Inputtan gelen verinin atandığı state
   const {pokeName, setPokeName} = useContext(InputContext);
 
   // Pokedex'i seçili type'a göre filtrelemek için type bilgisini tutan state
-  const {typeDex, setTypeDex, pokedex, setPokedex} = useContext(TypeDexContext);
+  const {typeDex, setTypeDex, poke404Error, setPoke404Error} = useContext(TypeDexContext);
 
   // Pokemon bilgilerini tutan obje
   const {pokeInfo, setPokeInfo} = useContext(DropDownContext);
@@ -59,12 +65,10 @@ const PokepediaComponent = () => {
 
   useEffect(() => {
     if(params.typeName){
-      console.log(params.typeName);
       setTypeDex(params.typeName);
       // setPokeName('');
       // navigate(`/pokedex/${typeDex.toLowerCase()}`);
     } else if(params.pokeName){
-      console.log(params);
       setTypeDex('');
       setPokeName(params.pokeName);
     }
@@ -76,35 +80,50 @@ const PokepediaComponent = () => {
     if(!pokeName){
       return;
     }
+    setPoke404Error(false);
     // setLoading(false);
     async function getPokeData() {
-      // Genel Bilgisi
-      const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${whiteList[pokeName] ? whiteList[pokeName] : pokeName}/`);
-      const data = await response.json();
+      try{
+        // Genel Bilgisi
+        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${whiteList[pokeName] ? whiteList[pokeName] : pokeName}/`);
+        const data = await response.json();
+        console.log('----------------------------00');
+        console.group(data ? data : 'null');
+        // Tür Bilgisi
+        const response2 = await fetch(data.species.url);
+        const data2 = await response2.json();
+        console.log('hey listen');
 
-      // Tür Bilgisi
-      const response2 = await fetch(data.species.url);
-      const data2 = await response2.json();
-      setSelects(0);
+        // Mod isimlerini listeleyen dropdown list'in seçili eleman numarasını set et
+        setSelects(0);
 
-      // Pokemon'un genel bilgisini set et
-      setPokeInfo(data);
-      // Pokemon'un tür bilgisini set et
-      setPokeSpeciesData(data2);
+        // Pokemon'un genel bilgisini set et
+        setPokeInfo(data);
+        
+        // Pokemon'un tür bilgisini set et
+        setPokeSpeciesData(data2);
 
-      // Aranan/Seçilen Pokemon'un Pokedex numarasını set et
-      setPokeId(data.id);
+        // Aranan/Seçilen Pokemon'un Pokedex numarasını set et
+        setPokeId(data.id);
 
-      // Mod isimlerini listeleyen dropdown list'in seçili eleman numarasını set et
-      
-      console.log(data);
-      console.log(data2);
+        
+        
+        console.log(data);
+        console.log(data2);
 
-      // Site başlığını set et
-      setTitle(`${makeUpper(pokeNameFix[data.name] ? pokeNameFix[data.name].replaceAll('-', ' ') : data.name.replaceAll('-', ' '))} | Poképedia`);
+        // Site başlığını set et
+        setTitle(`${makeUpper(pokeNameFix[data.name] ? pokeNameFix[data.name].replaceAll('-', ' ') : data.name.replaceAll('-', ' '))} | Poképedia`);
+      } catch(e){
+        setPoke404Error(true);
+        setPokeInfo(null);
+      }
+
     }
     // setPromise2(getPokeData);
     getPokeData();
+  
+    
+    
   }, [pokeName]);
 
 
@@ -324,17 +343,20 @@ const PokepediaComponent = () => {
 
 
       return(
-        <div className="flex flex-col justify-start items-center w-full h-screen">
+        <div className={`flex flex-col justify-start items-center w-full ${(pokeName && !pokeInfo && !poke404Error) || (poke404Error && !pokeInfo) ? '' : 'h-screen'}`}>
           
           {
-            !pokeName  && <Pokedex typeDex={typeDex} paramDex={params.typeName}/>
+            !pokeName  && 
+            
+            <Pokedex typeDex={typeDex} paramDex={params.typeName}/>
+            
           }
           
 
           {/* Content */}
           <div className="flex flex-col items-center">
             {
-              pokeInfo && pokeName &&
+              pokeInfo && pokeName && 
                 <>
                   {/* Previous - Next Buttons */}
                   <PreviousAndNext pokeInfo={pokeInfo} pokeId={pokeId} />
@@ -343,11 +365,27 @@ const PokepediaComponent = () => {
                     
                 </>
             }
+
+            
+
           </div>
+
+          {
+              poke404Error && !pokeInfo &&
+              <>
+                <ErrorPage />
+                {/* <div className='mb-16 text-6xl font-medium'>404</div> */}
+              </>
+            }
+
+            {
+              pokeName && !pokeInfo && !poke404Error &&
+                <div className='mb-16 text-6xl font-medium'>Loading...</div>
+            }
 
           
 
-
+        <div className='h-10 px-4 py-2 rounded bg-white text-white select-none'>Busted</div>
         </div>
       )
 }
