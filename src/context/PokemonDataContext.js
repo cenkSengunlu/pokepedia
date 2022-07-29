@@ -6,17 +6,17 @@ export const PokemonDataProvider = ({children}) => {
   const [pokemonData, setPokemonData] = useState({
     id: null,
     name: null,
-    typeDex: '',
     info: null,
     form: [],
     species: null,
     types: null,
-    typeMatchup: []
+    typeMatchup: [],
+    evolution: null
   });
 
-  const [title, setTitle] = useState("Pokédex | Poképedia");
+  // const [title, setTitle] = useState("Pokédex | Poképedia");
 
-  const values = {pokemonData, setPokemonData, title, setTitle};
+  const values = {pokemonData, setPokemonData};
 
   return <PokemonDataContext.Provider value={values}>{children}</PokemonDataContext.Provider>;
 };

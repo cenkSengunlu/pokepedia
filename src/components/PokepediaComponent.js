@@ -7,6 +7,7 @@ import damageColorObject from '../damageColorObject';
 import InputContext from '../context/InputContext';
 import DropDownContext from '../context/DropDownContext';
 import TypeDexContext from '../context/TypeDexContext';
+import PokemonDataContext from '../context/PokemonDataContext';
 
 
 import PokeInfoPage from './PokeInfoPage';
@@ -15,7 +16,7 @@ import PreviousAndNext from './PreviousAndNext';
 import makeUpper from '../makeUpper';
 import whiteList from '../whiteList';
 import pokeNameFix from '../pokeNameFix';
-
+import Loading from 'react-simple-loading';
 import { useParams, useNavigate } from 'react-router-dom';
 import ErrorPage from './ErrorPage';
 
@@ -27,6 +28,7 @@ const PokepediaComponent = () => {
   const params = useParams();
   const navigate = useNavigate();
 
+  const {pokemonData, setPokemonData} = useContext(PokemonDataContext);
 
   // Inputtan gelen verinin atandığı state
   const {pokeName, setPokeName} = useContext(InputContext);
@@ -70,14 +72,15 @@ const PokepediaComponent = () => {
       // navigate(`/pokedex/${typeDex.toLowerCase()}`);
     } else if(params.pokeName){
       setTypeDex('');
-      setPokeName(params.pokeName);
+      setPokemonData(pokemonData => ({...pokemonData, name:params.pokeName}));
+      // setPokeName(params.pokeName);
     }
     
   }, [params.typeName, params.pokeName]);
 
   // Aranan Pokemon eğer varsa genel bilgilerini ve Tür bilgilerini fetch et
   useEffect(() => { 
-    if(!pokeName){
+    if(!pokemonData.name){
       return;
     }
     setPoke404Error(false);
@@ -85,7 +88,7 @@ const PokepediaComponent = () => {
     async function getPokeData() {
       try{
         // Genel Bilgisi
-        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${whiteList[pokeName] ? whiteList[pokeName] : pokeName}/`);
+        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${whiteList[pokemonData.name] ? whiteList[pokemonData.name] : pokemonData.name}/`);
         const data = await response.json();
         console.log('----------------------------00');
         console.group(data ? data : 'null');
@@ -98,13 +101,14 @@ const PokepediaComponent = () => {
         setSelects(0);
 
         // Pokemon'un genel bilgisini set et
-        setPokeInfo(data);
+        setPokemonData(pokemonData => ({...pokemonData, id:data.id, species:data2, info:data}));
+        // setPokeInfo(data);
         
         // Pokemon'un tür bilgisini set et
-        setPokeSpeciesData(data2);
+        // setPokeSpeciesData(data2);
 
         // Aranan/Seçilen Pokemon'un Pokedex numarasını set et
-        setPokeId(data.id);
+        // setPokeId(data.id);
 
         
         
@@ -115,7 +119,9 @@ const PokepediaComponent = () => {
         setTitle(`${makeUpper(pokeNameFix[data.name] ? pokeNameFix[data.name].replaceAll('-', ' ') : data.name.replaceAll('-', ' '))} | Poképedia`);
       } catch(e){
         setPoke404Error(true);
-        setPokeInfo(null);
+        setPokemonData(pokemonData => ({...pokemonData, info:null}));
+        // setPokeInfo(null);
+
       }
 
     }
@@ -124,21 +130,22 @@ const PokepediaComponent = () => {
   
     
     
-  }, [pokeName]);
+  }, [pokemonData.name]);
 
 
 
   // Aranan/Seçilen Pokemon'un evrim ağacını fetch et
   useEffect(() => {
-    if(!pokeId || !pokeSpeciesData){
+    if(!pokemonData.id || !pokemonData.species){
       return;
     }
     
     async function getPokemonEvolutions() {
       // Aranan/Seçilen Pokemon'un evrim ağacı bilgisi
-      const response = await fetch(pokeSpeciesData.evolution_chain.url);
+      const response = await fetch(pokemonData.species.evolution_chain.url);
       const data = await response.json();
-      setEvolutionChart(data);
+      setPokemonData(pokemonData => ({...pokemonData, evolution:data}));
+      // setEvolutionChart(data);
       console.log(data);
       // setPokeEvo(data);
 
@@ -171,11 +178,11 @@ const PokepediaComponent = () => {
     // setPromise3(getPokemonEvolutions);
     getPokemonEvolutions();
     
-  }, [pokeId, pokeSpeciesData]);
+  }, [pokemonData.id, pokemonData.species]);
 
 
   useEffect(() => {
-    if(!evolutionChart){
+    if(!pokemonData.evolution){
       return;
     }
     let evolutionObj = {};
@@ -189,15 +196,15 @@ const PokepediaComponent = () => {
       getChart(chartChain.evolves_to[0]);
       console.log(evolutionObj);
     }
-    getChart(evolutionChart.chain);
+    getChart(pokemonData.evolution.chain);
     console.log('-----------------chain');
-    console.log(evolutionChart);
-  }, [evolutionChart]);
+    console.log(pokemonData.evolution);
+  }, [pokemonData.evolution]);
 
 
   // Aranan/Seçilen Pokemon'un Form(Mod) bilgilerini fetch et
   useEffect(() => {
-    if(!pokeSpeciesData){
+    if(!pokemonData.species){
       return;
     }
     // console.log(pokeFormData);
@@ -211,13 +218,14 @@ const PokepediaComponent = () => {
       let formTypes = {};
 
       // Pokemon'un form(mod) bilgilerini döngü ile feth et
-      for(let i = 0; i < pokeSpeciesData.varieties.length; i++){
-        const response = await fetch(pokeSpeciesData.varieties[i].pokemon.url);
+      for(let i = 0; i < pokemonData.species.varieties.length; i++){
+        const response = await fetch(pokemonData.species.varieties[i].pokemon.url);
         const data = await response.json();
         formArr.push(data);
       }
       // Form bilgilerini set et
-      setPokeForm(formArr);
+      setPokemonData(pokemonData => ({...pokemonData, form:formArr}));
+      // setPokeForm(formArr);
       // console.log(formArr);
       
       for(let j = 0; j < formArr.length; j++){
@@ -232,10 +240,11 @@ const PokepediaComponent = () => {
       }
       // Form tiplerini tutan objeyi set et
       console.log(formTypes);
-      setTypes(formTypes);
+      setPokemonData(pokemonData => ({...pokemonData, types:formTypes}));
+      // setTypes(formTypes);
     }
     getPokemonMode();
-  }, [pokeSpeciesData]);
+  }, [pokemonData.species]);
 
 
 
@@ -247,11 +256,11 @@ const PokepediaComponent = () => {
 
   // Pokemon type hasar hesabı
   useEffect(() => {
-    if(!types){
+    if(!pokemonData.types){
       return;
     }
     const damageCalculate = () => {
-      const formType = types['type' + selects];
+      const formType = pokemonData.types['type' + selects];
       // console.log(formType);
       let typeObj = {...typeDefenseObject};
       const damageControl = Object.keys(formType[0].damage_relations).filter((o) => o.includes('from')); 
@@ -298,12 +307,13 @@ const PokepediaComponent = () => {
           </div>
           );
       }
-      setTypeMatchup(arr);
+      setPokemonData(pokemonData => ({...pokemonData, typeMatchup:arr}));
+      // setTypeMatchup(arr);
     }
     // setPromise5(damageCalculate);
     damageCalculate();
 
-  }, [types, selects]);
+  }, [pokemonData.types, selects]);
 
   // Promise.all([promise2, promise3, promise4, promise5]).then(() => {
   //   setLoading(true);
@@ -343,10 +353,10 @@ const PokepediaComponent = () => {
 
 
       return(
-        <div className={`flex flex-col justify-start items-center w-full ${(pokeName && !pokeInfo && !poke404Error) || (poke404Error && !pokeInfo) ? '' : 'h-screen'}`}>
+        <div className={`flex flex-col justify-start items-center w-full ${(pokemonData.name && !pokemonData.info && !poke404Error) || (poke404Error && !pokemonData.info) ? '' : 'h-screen'}`}>
           
           {
-            !pokeName  && 
+            !pokemonData.name  && 
             
             <Pokedex typeDex={typeDex} paramDex={params.typeName}/>
             
@@ -356,12 +366,12 @@ const PokepediaComponent = () => {
           {/* Content */}
           <div className="flex flex-col items-center">
             {
-              pokeInfo && pokeName && 
+              pokemonData.info && pokemonData.name && 
                 <>
                   {/* Previous - Next Buttons */}
-                  <PreviousAndNext pokeInfo={pokeInfo} pokeId={pokeId} />
+                  <PreviousAndNext pokeInfo={pokemonData.info} pokeId={pokemonData.id} />
                 
-                  <PokeInfoPage pokeInfo={pokeInfo} pokeForm={pokeForm} pokeSpeciesData={pokeSpeciesData} pokeId={pokeId} typeMatchup={typeMatchup}/>
+                  <PokeInfoPage pokeInfo={pokemonData.info} pokeForm={pokemonData.form} pokeSpeciesData={pokemonData.species} pokeId={pokemonData.id} typeMatchup={pokemonData.typeMatchup}/>
                     
                 </>
             }
@@ -371,7 +381,7 @@ const PokepediaComponent = () => {
           </div>
 
           {
-              poke404Error && !pokeInfo &&
+              poke404Error && !pokemonData.info &&
               <>
                 <ErrorPage />
                 {/* <div className='mb-16 text-6xl font-medium'>404</div> */}
@@ -379,8 +389,12 @@ const PokepediaComponent = () => {
             }
 
             {
-              pokeName && !pokeInfo && !poke404Error &&
-                <div className='mb-16 text-6xl font-medium'>Loading...</div>
+              pokemonData.name && !pokemonData.info && !poke404Error &&
+              <div className='flex items-center'>
+                <span className='mr-5 text-4xl font-medium'>Loading</span>  
+                <Loading />
+              </div>
+                // <div className='mb-16 text-6xl font-medium'>Loading...</div>
             }
 
           

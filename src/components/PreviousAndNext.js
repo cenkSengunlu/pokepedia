@@ -2,12 +2,12 @@ import React, {useContext, useState, useEffect} from 'react';
 import InputContext from '../context/InputContext';
 import makeUpper from '../makeUpper';
 import pokeNameFix from '../pokeNameFix';
-
+import PokemonDataContext from '../context/PokemonDataContext';
 import { useNavigate } from "react-router-dom";
 
 
 function PreviousAndNext({pokeInfo, pokeId}) {
-
+  const {setPokemonData} = useContext(PokemonDataContext);
   const navigate = useNavigate()
   const {setPokeName} = useContext(InputContext);
   const [previous, setPrevious] = useState();
@@ -40,18 +40,28 @@ function PreviousAndNext({pokeInfo, pokeId}) {
 
   }, [pokeId, pokeInfo]);
 
-
-
+  function sleepFor(sleepDuration){
+    var now = new Date().getTime();
+    while(new Date().getTime() < now + sleepDuration){ 
+        /* Do nothing */ 
+    }
+}
   
 
-  const handlePre = (pokeID, previous) => {
+  const handlePre = async(pokeID, previous) => {
+    await setPokemonData(pokemonData => ({...pokemonData, id: null, name: null, info: null, form: [], species: null, types: null, typeMatchup: [], evolution: null}));
     navigate(`/pokemon/${previous.name}`);
-    setPokeName(pokeID);
+    await setPokemonData(pokemonData => ({...pokemonData, name:pokeID}));
   }
 
-  const handleNext = (pokeID, next) => {
+  const handleNext = async(pokeID, next) => {
+    await setPokemonData(pokemonData => ({...pokemonData, id: null, name: null, info: null, form: [], species: null, types: null, typeMatchup: [], evolution: null}));
     navigate(`/pokemon/${next.name}`);
-    setPokeName(pokeID);
+    await setPokemonData(pokemonData => ({...pokemonData, name:pokeID}));
+      
+    
+      
+    
   }
 
   return (

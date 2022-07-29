@@ -1,13 +1,13 @@
 import React, {useContext} from 'react';
 import InputContext from '../context/InputContext';
 import TypeDexContext from '../context/TypeDexContext';
+import PokemonDataContext from '../context/PokemonDataContext';
 import DropDownContext from '../context/DropDownContext';
 import { NavLink } from 'react-router-dom';
 
 
 function ErrorPage() {
-  const {setPokeName} = useContext(InputContext);
-  const {setPokeInfo} = useContext(DropDownContext);
+  const {setPokemonData} = useContext(PokemonDataContext);
   const {setTypeDex, setTitle, setPoke404Error} = useContext(TypeDexContext);
   return (
     <div className='container w-full flex items-center errorPage'>
@@ -23,9 +23,12 @@ function ErrorPage() {
               onClick={() => {
                 setTitle('Poképedia');
                 setPoke404Error(false);
-                setPokeInfo(null);
-                setPokeName('');
                 setTypeDex('');
+
+                setPokemonData(pokemonData => ({...pokemonData, id: null, name: null, info: null, form: [], species: null, types: null, typeMatchup: [], evolution: null}));
+                // setPokeInfo(null);
+                // setPokeName('');
+                
 
               }}
             >
@@ -37,9 +40,12 @@ function ErrorPage() {
               onClick={() => {
                 setTitle("Pokédex | Poképedia");
                 setPoke404Error(false);
-                setPokeInfo(null);
-                setPokeName('');
                 setTypeDex('');
+                
+                setPokemonData(pokemonData => ({...pokemonData, id: null, name: null, info: null, form: [], species: null, types: null, typeMatchup: [], evolution: null}));
+                // setPokeInfo(null);
+                // setPokeName('');
+                
               
               }}
             >

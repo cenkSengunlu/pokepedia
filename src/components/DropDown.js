@@ -1,16 +1,17 @@
 import React, {useEffect, useContext} from 'react';
 import DropDownContext from '../context/DropDownContext';
+import PokemonDataContext from '../context/PokemonDataContext';
 import makeUpper from '../makeUpper';
 
 function DropDown({pokeForm}) {
-  const {selects, setSelects, setPokeInfo} = useContext(DropDownContext);
-
+  const {selects, setSelects} = useContext(DropDownContext);
+  const {setPokemonData} = useContext(PokemonDataContext);
   useEffect(() =>{
     if(!selects){
       return;
     }
-
-    setPokeInfo(pokeForm[selects]);
+    setPokemonData(pokemonData => ({...pokemonData, info:pokeForm[selects]}));
+    // setPokeInfo(pokeForm[selects]);
   }, [selects, pokeForm]);
 
   return (

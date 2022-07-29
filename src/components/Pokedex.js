@@ -2,12 +2,16 @@ import React, {useState, useEffect, useContext} from 'react';
 import makeUpper from '../makeUpper';
 import PokeCard from './PokeCard';
 import TypeDexContext from '../context/TypeDexContext';
+import Loading from 'react-simple-loading';
+import ErrorPage from './ErrorPage';
 
 
 function Pokedex({typeDex, paramDex}) {
     const [counter, setCounter] = useState(0);
     const [typeDexLimit, setTypeDexLimit] = useState(12);
     const {pokedex, setPokedex} = useContext(TypeDexContext);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(false);
 
     useEffect(() => {
       if(typeDex || paramDex){
@@ -16,6 +20,9 @@ function Pokedex({typeDex, paramDex}) {
       }
       
         async function getPokedex(){
+          try{
+            setIsLoading(true);
+            
             const response = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=12&offset=${counter}`);
             const data = await response.json();
             data.results.forEach(async (item) => {
@@ -23,7 +30,12 @@ function Pokedex({typeDex, paramDex}) {
               const data2 = await response2.json();
               setPokedex(pokedex => [...pokedex, data2]);
             });
-            
+            setError(false);
+          } catch{
+            setError(true);
+            console.log('error');
+          }
+          setIsLoading(false);
         }
         getPokedex();
     }, [counter, typeDex]);
@@ -38,17 +50,22 @@ function Pokedex({typeDex, paramDex}) {
       }
       console.log(paramDex);
       async function getTypeDex(){
-        const response = await fetch(`https://pokeapi.co/api/v2/type/${typeDex}/`);
-        const data = await response.json();
-        
-        data.pokemon.forEach(async (item) => {
-          const response2 = await fetch(item.pokemon.url);
-          const data2 = await response2.json();
-          if(data2.id < 898){
-            setPokedex(pokedex => [...pokedex, data2]);
-          }
+        try{
+          setIsLoading(true);
+          const response = await fetch(`https://pokeapi.co/api/v2/type/${typeDex}/`);
+          const data = await response.json();
           
-        });
+          data.pokemon.forEach(async (item) => {
+            const response2 = await fetch(item.pokemon.url);
+            const data2 = await response2.json();
+            if(data2.id < 898){
+              setPokedex(pokedex => [...pokedex, data2]);
+            }
+          });
+        } catch{
+          setError(true);
+        }
+      setIsLoading(false);
         
       }
       getTypeDex();
@@ -67,7 +84,7 @@ function Pokedex({typeDex, paramDex}) {
               <div className='mb-16 text-6xl font-medium'>Pokédex</div>
             }
 
-            {typeDex && 
+            {typeDex && !error && !isLoading &&
               <div className='mb-16 text-6xl font-medium'>{makeUpper(typeDex)} Type Pokémon's</div>
             }
 
@@ -93,19 +110,36 @@ function Pokedex({typeDex, paramDex}) {
               
               
             </div>
-            {
+            {!isLoading ? (
+            ( (typeDex &&(pokedex.length >= typeDexLimit)) || (!typeDex &&(pokedex.length >= counter))) && (
               
-              ( (typeDex &&(pokedex.length >= typeDexLimit)) || (!typeDex &&(pokedex.length >= counter))) &&
-              <button className='mt-10 px-4 py-2 rounded bg-blue-600 text-white select-none' onClick={() => {
+              <button className='mt-10 px-4 py-2 rounded bg-indigo-500 text-white select-none' onClick={() => {
                 if(!typeDex){
                   setCounter(counter + 12);
                 } else{
                   setTypeDexLimit(typeDexLimit + 12);
                 }
-                
+
 
               }}>Load more Pokémon</button>
+              
+            )
+            ) : (
+              <div className='flex items-center'>
+                <span className='mt-5 mr-5 text-md font-medium'>Loading</span>  
+                <Loading />
+              </div>
+          )}
+
+
+            {
+              !isLoading && error && 
+              <>
+                <ErrorPage />
+              </>
             }
+
+
             
           </>
         }

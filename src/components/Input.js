@@ -5,10 +5,13 @@ import DropDownContext from '../context/DropDownContext';
 import autoCompleteArr from '../autoCompleteArr';
 import { NavLink, useNavigate } from 'react-router-dom';
 
+import PokemonDataContext from '../context/PokemonDataContext';
+
 function Input() {
   const navigate = useNavigate();
-  const {setPokeName} = useContext(InputContext);
-  const {setPokeInfo} = useContext(DropDownContext);
+  const {setPokemonData} = useContext(PokemonDataContext);
+  // const {setPokeName} = useContext(InputContext);
+  // const {setPokeInfo} = useContext(DropDownContext);
   const {setTypeDex, setTitle, setPoke404Error} = useContext(TypeDexContext);
   const [inputVal, setInputVal] = useState("");
   const [result, setResult] = useState([]);
@@ -58,7 +61,8 @@ function Input() {
       document.querySelector('.inputClass').blur();
     }
     navigate(`/pokemon/${inputVal.toLowerCase()}`);
-    setPokeName(inputVal.toLowerCase());
+    setPokemonData(pokemonData => ({...pokemonData, name: inputVal.toLowerCase()}));
+    // setPokeName(inputVal.toLowerCase());
     setInputVal('');
     setResult([]);
   }
@@ -74,11 +78,11 @@ function Input() {
           className='text-2xl text-white cursor-pointer' 
           onClick={() => {
             setTitle('Poképedia');
-            setPokeInfo(null);
+            // setPokeInfo(null);
             setPoke404Error(false);
-            setPokeName('');
+            // setPokeName('');
             setTypeDex('');
-
+            setPokemonData(pokemonData => ({...pokemonData, id: null, name: null, info: null, form: [], species: null, types: null, typeMatchup: [], evolution: null}));
           }}
         >
           Poképedia
@@ -88,11 +92,11 @@ function Input() {
           className='text-lg ml-12 text-white cursor-pointer'  
           onClick={() => {
             setTitle("Pokédex | Poképedia");
-            setPokeInfo(null);
+            // setPokeInfo(null);
             setPoke404Error(false);
-            setPokeName('');
+            // setPokeName('');
             setTypeDex('');
-
+            setPokemonData(pokemonData => ({...pokemonData, id: null, name: null, info: null, form: [], species: null, types: null, typeMatchup: [], evolution: null}));
           }}
         >
           Pokédex
@@ -106,7 +110,7 @@ function Input() {
           ></input>
 
           <div className='search-result w-52 min-w-52 left-0 absolute mt-7 rounded bg-zinc-800'>
-            {result.map((item, index) => (<div key={index} className='search-result-item py-2.5 px-4 border-b border-zinc-200 last:border-0 text-white hover:bg-zinc-700 cursor-pointer' onClick={() => {setPokeName(item.toLowerCase()); setPokeInfo(null); setInputVal(''); navigate(`/pokemon/${item.toLowerCase()}`); setResult([]);}}>
+            {result.map((item, index) => (<div key={index} className='search-result-item py-2.5 px-4 border-b border-zinc-200 last:border-0 text-white hover:bg-zinc-700 cursor-pointer' onClick={() => {setPokemonData(pokemonData => ({...pokemonData, name: item.toLowerCase(), info:null}));  setInputVal(''); navigate(`/pokemon/${item.toLowerCase()}`); setResult([]);}}>
               {item}
             </div>))}
 
